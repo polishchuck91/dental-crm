@@ -1,5 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  BeforeInsert,
+} from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { UserDetail } from './user-detail.entity';
+import { IsEmail, IsNotEmpty, Length } from 'class-validator';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -11,16 +21,21 @@ export enum UserRole {
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
+  @IsNotEmpty({ message: 'Username is required' })
+  @Length(3, 50, { message: 'Username must be between 3 and 50 characters' })
   username: string;
 
   @Column({ unique: true })
+  @IsEmail({}, { message: 'Invalid email format' })
   email: string;
 
   @Column()
+  @IsNotEmpty({ message: 'Password is required' })
+  @Length(60)
   password: string;
 
   @Column({
@@ -31,11 +46,19 @@ export class User {
   role: UserRole;
 
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updatedAt: Date;
 
-  @OneToMany(() => UserDetail, (details) => details.user)
-  details: UserDetail[];
+  @OneToMany(() => UserDetail, (details) => details.user, { lazy: true })
+  details: Promise<UserDetail[]>;
+
+  @BeforeInsert()
+  async setPasswordHash() {
+    // Avoid re-hashing an already hashed password
+    if (!bcrypt.getRounds(this.password)) {
+      this.password = await bcrypt.hash(this.password, 10);
+    }
+  }
 }
