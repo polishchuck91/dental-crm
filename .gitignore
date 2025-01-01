@@ -1,0 +1,60 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directories
+node_modules/
+.pnp/
+.pnp.js
+
+# Production build
+build/
+dist/
+
+# Docker files
+docker-compose.override.yml
+.env
+.env.*.local
+
+# Local environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*~
+
+# MacOS files
+.DS_Store
+
+# Coverage reports
+coverage/
+*.lcov
+
+# React specific
+/.next/
+/out/
+/public/static/
+*.cache
+
+# NestJS specific
+/tmp/
+*.tsbuildinfo
+
+# MySQL
+mysql-data/
+
+# Ignore compiled output
+*.out
+*.exe
+
+# Ignore Yarn PnP
+.pnp/
+.pnp.js
