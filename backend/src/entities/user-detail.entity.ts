@@ -4,7 +4,7 @@ import { Patient } from './patient.entity';
 import { Employee } from './employee.entity';
 
 @Entity('user_details')
-export class UserDetails {
+export class UserDetail {
   @PrimaryGeneratedColumn()
   id: number;
 

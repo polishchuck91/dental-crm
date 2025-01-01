@@ -2,7 +2,7 @@ import { AppDataSource } from '../ormconfig';
 import { User, UserRole } from '../entities/user.entity';
 import { Patient } from '../entities/patient.entity';
 import { Employee } from '../entities/employee.entity';
-import { UserDetails } from '../entities/user-detail.entity';
+import { UserDetail } from '../entities/user-detail.entity';
 
 async function seed() {
   await AppDataSource.initialize();
@@ -10,7 +10,7 @@ async function seed() {
   const userRepository = AppDataSource.getRepository(User);
   const patientRepository = AppDataSource.getRepository(Patient);
   const employeeRepository = AppDataSource.getRepository(Employee);
-  const userDetailsRepository = AppDataSource.getRepository(UserDetails);
+  const userDetailsRepository = AppDataSource.getRepository(UserDetail);
 
   // Додати пацієнта
   const patientUser = userRepository.create({

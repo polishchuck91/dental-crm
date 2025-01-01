@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { UserDetails } from './user-detail.entity';
+import { UserDetail } from './user-detail.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -36,6 +36,6 @@ export class User {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => UserDetails, (details) => details.user)
-  details: UserDetails[];
+  @OneToMany(() => UserDetail, (details) => details.user)
+  details: UserDetail[];
 }

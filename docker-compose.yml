@@ -1,4 +1,6 @@
-name: dental-crm
+version: "3.9"
+
+name: "dental-crm"
 
 services:
   backend:
@@ -9,11 +11,15 @@ services:
     ports:
       - "5000:3000"
     environment:
-      - DATABASE_HOST=mysql
-      - DATABASE_PORT=3306
-      - DATABASE_USER=root
-      - DATABASE_PASSWORD=root
-      - DATABASE_NAME=mydb
+      DATABASE_HOST: mysql
+      DATABASE_PORT: 3306
+      DATABASE_USER: root
+      DATABASE_PASSWORD: root
+      DATABASE_NAME: mydb
+      NODE_ENV: development
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
     depends_on:
       - mysql
 
@@ -24,6 +30,11 @@ services:
     container_name: dental-crm-frontend
     ports:
       - "5173:5173"
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
 
   mysql:
     image: mysql:8.0

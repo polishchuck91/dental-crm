@@ -1,22 +1,20 @@
-# Dockerfile (Backend)
-FROM node:20-alpine
+# Use a lightweight Node.js image
+FROM node:20
 
-WORKDIR /app
+# Set the working directory inside the container
+WORKDIR /usr/src/app
 
-# Copy only the package files to install dependencies
-COPY package*.json yarn.lock ./
+# Copy package files to the container
+COPY package.json yarn.lock ./
 
-# Install dependencies using Yarn
-RUN yarn install
+# Install dependencies
+RUN yarn install --frozen-lockfile
 
-# Copy the rest of the code
+# Copy the application source code to the container
 COPY . .
-
-# Build the TypeScript application
-RUN yarn build
 
 # Expose the application port
 EXPOSE 3000
 
-# Start the application in production mode
-CMD ["yarn", "start:prod"]
+# Use CMD to run the development server
+CMD ["yarn", "start:dev"]
