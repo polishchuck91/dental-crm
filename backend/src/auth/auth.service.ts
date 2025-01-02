@@ -22,7 +22,10 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const accessToken = await this.tokenService.generateAccessToken(user.id);
+    const accessToken = await this.tokenService.generateAccessToken(
+      user.id,
+      user.role,
+    );
     const refreshToken = await this.tokenService.generateRefreshToken(user.id);
 
     return {

@@ -67,7 +67,9 @@ export class UserService {
 
   // Refactor to get current user based on request
   async getMySelf(request: Request): Promise<UserResponseDto> {
-    const mySelf = await this.userRepository.findOneBy({ id: request['user'] });
+    const mySelf = await this.userRepository.findOneBy({
+      id: request['user']['id'],
+    });
 
     if (!mySelf) {
       throw new NotFoundException('User not found');

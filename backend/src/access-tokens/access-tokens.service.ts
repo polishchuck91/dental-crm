@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UserRole } from 'src/entities/user.entity';
 
 @Injectable()
 export class AccessTokensService {
   constructor(private jwtService: JwtService) {}
 
-  async generateAccessToken(userId: string) {
-    const payload = { sub: userId }; // 'sub' is a standard claim for subject
+  async generateAccessToken(userId: string, role: UserRole) {
+    const payload = { sub: userId, role }; // 'sub' is a standard claim for subject
     return await this.jwtService.sign(payload);
   }
 
