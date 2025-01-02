@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,8 +22,8 @@ export class UserController {
   }
 
   @Get('/myself')
-  mySelf() {
-    return this.userService.mySelf();
+  mySelf(@Req() request) {
+    return this.userService.getMySelf(request);
   }
 
   @Get()

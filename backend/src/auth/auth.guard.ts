@@ -42,7 +42,6 @@ export class AuthGuard implements CanActivate {
 
       request['user'] = payload['sub'];
     } catch (error) {
-      console.log('token is expired!');
       throw new UnauthorizedException('Invalid or expired authorization token');
     }
 
