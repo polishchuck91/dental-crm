@@ -9,11 +9,7 @@ import { EmployeeModule } from './employee/employee.module';
 import { PatientModule } from './patient/patient.module';
 import { ServiceModule } from './service/service.module';
 import { UserDetailModule } from './user-detail/user-detail.module';
-import { UserController } from './user/user.controller';
-import { AppointmentController } from './appointment/appointment.controller';
-import { EmployeeController } from './employee/employee.controller';
-import { PatientController } from './patient/patient.controller';
-import { ServiceController } from './service/service.controller';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -33,14 +29,7 @@ import { ServiceController } from './service/service.controller';
     PatientModule,
     ServiceModule,
     UserDetailModule,
-  ],
-  controllers: [
-    AppController,
-    UserController,
-    AppointmentController,
-    EmployeeController,
-    PatientController,
-    ServiceController,
+    AuthModule,
   ],
   providers: [AppService],
 })
