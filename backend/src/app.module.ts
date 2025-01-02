@@ -10,6 +10,7 @@ import { PatientModule } from './patient/patient.module';
 import { ServiceModule } from './service/service.module';
 import { UserDetailModule } from './user-detail/user-detail.module';
 import { AuthModule } from './auth/auth.module';
+import { AccessTokensModule } from './access-tokens/access-tokens.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AuthModule } from './auth/auth.module';
     ServiceModule,
     UserDetailModule,
     AuthModule,
+    AccessTokensModule,
   ],
   providers: [AppService],
 })
