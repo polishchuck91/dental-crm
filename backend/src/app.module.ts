@@ -10,6 +10,8 @@ import { PatientModule } from './patient/patient.module';
 import { ServiceModule } from './service/service.module';
 import { UserDetailModule } from './user-detail/user-detail.module';
 import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
 import { AccessTokensModule } from './access-tokens/access-tokens.module';
 
 @Module({
@@ -33,6 +35,12 @@ import { AccessTokensModule } from './access-tokens/access-tokens.module';
     AuthModule,
     AccessTokensModule,
   ],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class AppModule {}

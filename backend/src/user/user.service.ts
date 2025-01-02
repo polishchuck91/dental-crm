@@ -46,6 +46,10 @@ export class UserService {
     return user;
   }
 
+  mySelf() {
+    return 'me';
+  }
+
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
