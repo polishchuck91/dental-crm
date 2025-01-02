@@ -14,17 +14,29 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { AccessTokensModule } from './access-tokens/access-tokens.module';
 
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import databaseConfig from './config/database.config';
+import jwtConfig from './config/jwt.config';
+
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DATABASE_HOST || 'localhost',
-      port: parseInt(process.env.DATABASE_PORT, 10) || 3306,
-      username: process.env.DATABASE_USER || 'root',
-      password: process.env.DATABASE_PASSWORD || 'root',
-      database: process.env.DATABASE_NAME || 'mydb',
-      autoLoadEntities: true, // Автоматичне завантаження сутностей
-      synchronize: false, // Використовуйте `true` лише в розробці
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [databaseConfig, jwtConfig],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get('database.host'),
+        port: configService.get('database.port'),
+        username: configService.get('database.username'),
+        password: configService.get('database.password'),
+        database: configService.get('database.database'),
+        autoLoadEntities: true,
+        synchronize: true, // Disable this in production!
+      }),
     }),
     UserModule,
     AppointmentModule,

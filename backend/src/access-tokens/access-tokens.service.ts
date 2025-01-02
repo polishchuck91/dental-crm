@@ -1,29 +1,46 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { UserRole } from 'src/entities/user.entity';
 
 @Injectable()
 export class AccessTokensService {
-  constructor(private jwtService: JwtService) {}
+  private accessSecret: string;
+  private refreshSecret: string;
 
-  async generateAccessToken(userId: string, role: UserRole) {
-    const payload = { sub: userId, role }; // 'sub' is a standard claim for subject
-    return await this.jwtService.sign(payload);
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {
+    this.accessSecret = this.configService.get<string>('JWT_ACCESS_SECRET');
+    this.refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET');
   }
 
-  async generateRefreshToken(userId: string) {
+  async generateAccessToken(userId: string, role: UserRole): Promise<string> {
+    const payload = { sub: userId, role }; // 'sub' is a standard claim for subject
+    return this.jwtService.sign(payload, {
+      secret: this.accessSecret,
+      expiresIn: '15m', // Access token expiration
+    });
+  }
+
+  async generateRefreshToken(userId: string): Promise<string> {
     const payload = { sub: userId };
-    return await this.jwtService.sign(payload, {
-      secret:
-        'f9a8e6b2df453c5c8f7dfae9939f92d9b53c7a1f6c74a5bd73b43dcf4f8c9fae',
+    return this.jwtService.sign(payload, {
+      secret: this.refreshSecret,
       expiresIn: '7d', // Refresh token expiration
     });
   }
 
-  async verifyAccessToken(token: string) {
-    return await this.jwtService.verifyAsync(token, {
-      secret:
-        'bdc6a77fcfb4c8f6df0a64b9f4aebae8f539d4b8c2c70f9a3fd938f9e4f8eeda',
+  async verifyAccessToken(token: string): Promise<any> {
+    return this.jwtService.verifyAsync(token, {
+      secret: this.accessSecret,
+    });
+  }
+
+  async verifyRefreshToken(token: string): Promise<any> {
+    return this.jwtService.verifyAsync(token, {
+      secret: this.refreshSecret,
     });
   }
 }
