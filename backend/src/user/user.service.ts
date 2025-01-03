@@ -39,8 +39,9 @@ export class UserService {
     return plainToInstance(UserResponseDto, result);
   }
 
-  findAll(): string {
-    return 'This action returns all users';
+  async findAll() {
+    const usersList = await this.userRepository.find();
+    return usersList;
   }
 
   async findOne(id: string): Promise<UserResponseDto> {
@@ -83,7 +84,7 @@ export class UserService {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number): string {
+  remove(id: string): string {
     return `This action removes a #${id} user`;
   }
 }

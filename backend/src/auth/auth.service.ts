@@ -9,11 +9,14 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly tokenService: AccessTokensService,
-    private readonly blackListService: TokenBlacklistService,
+    private readonly blacklistService: TokenBlacklistService,
   ) {}
 
   /**
-   * Authenticate a user and generate access and refresh tokens
+   * Authenticate a user and generate access and refresh tokens.
+   * @param userIdentifier - The user's email or username.
+   * @param password - The user's password.
+   * @returns User information along with generated tokens.
    */
   async login(userIdentifier: string, password: string) {
     // Find user by email or username
@@ -22,7 +25,7 @@ export class AuthService {
       : await this.userService.findUserByUsername(userIdentifier);
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     // Verify the password
@@ -38,7 +41,8 @@ export class AuthService {
     ]);
 
     return {
-      user: user.email,
+      userId: user.id,
+      email: user.email,
       role: user.role,
       accessToken,
       refreshToken,
@@ -46,13 +50,23 @@ export class AuthService {
   }
 
   /**
-   * Refresh tokens by validating and rotating the refresh token
+   * Blacklist a token during user logout.
+   * @param token - The token to blacklist.
+   */
+  async logout(token: string) {
+    await this.blacklistService.addTokenToBlacklist(token);
+  }
+
+  /**
+   * Refresh tokens by validating and rotating the refresh token.
+   * @param token - The refresh token.
+   * @returns New access and refresh tokens.
    */
   async refresh(token: string) {
     // Check if the token is blacklisted
-    const isBlacklisted = await this.blackListService.isTokenBlacklisted(token);
+    const isBlacklisted = await this.blacklistService.isTokenBlacklisted(token);
     if (isBlacklisted) {
-      throw new UnauthorizedException('Token is blacklisted');
+      throw new UnauthorizedException('Invalid or blacklisted token');
     }
 
     let payload;
@@ -63,14 +77,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    // Retrieve the user by ID from the payload
+    // Retrieve the user by ID from the token payload
     const user = await this.userService.findOne(payload['id']);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
     // Blacklist the used refresh token
-    await this.blackListService.setBlacklistToken(token, payload['exp']);
+    await this.blacklistService.addTokenToBlacklist(token);
 
     // Generate new access and refresh tokens
     const [accessToken, refreshToken] = await Promise.all([
@@ -78,6 +92,10 @@ export class AuthService {
       this.tokenService.generateRefreshToken(user.id),
     ]);
 
-    return { accessToken, refreshToken };
+    return {
+      userId: user.id,
+      accessToken,
+      refreshToken,
+    };
   }
 }

@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -15,9 +14,9 @@ import { AuthGuard } from './auth/auth.guard';
 import { AccessTokensModule } from './access-tokens/access-tokens.module';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TokenBlacklistService } from './token-blacklist/token-blacklist.service';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
+import { RolesGuard } from './auth/roles.guard';
 
 @Module({
   imports: [
@@ -54,7 +53,10 @@ import jwtConfig from './config/jwt.config';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    TokenBlacklistService,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
   ],
 })
 export class AppModule {}

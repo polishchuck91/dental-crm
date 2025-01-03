@@ -12,6 +12,8 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { IsPublic } from 'src/decorators/is-public.decorator';
+import { Roles } from 'src/auth/roles.decorator';
+import { UserRole } from 'src/entities/user.entity';
 
 @Controller('users')
 export class UserController {
@@ -28,6 +30,7 @@ export class UserController {
     return this.userService.getMySelf(request);
   }
 
+  @Roles(UserRole.ADMIN)
   @Get()
   findAll() {
     return this.userService.findAll();
@@ -43,8 +46,9 @@ export class UserController {
     return this.userService.update(+id, updateUserDto);
   }
 
+  @Roles(UserRole.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+    return this.userService.remove(id);
   }
 }

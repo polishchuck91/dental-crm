@@ -19,4 +19,9 @@ export class AuthController {
   refresh(@Body() { refreshToken }: RefreshTokenDto) {
     return this.authService.refresh(refreshToken);
   }
+
+  @Post('/logout')
+  logout(@Body() { refreshToken }: RefreshTokenDto) {
+    return this.authService.logout(refreshToken);
+  }
 }
