@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Req,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -14,6 +15,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { IsPublic } from 'src/decorators/is-public.decorator';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserRole } from 'src/entities/user.entity';
+import { PaginationDto } from 'src/dtos/pagination-dto';
 
 @Controller('users')
 export class UserController {
@@ -32,8 +34,8 @@ export class UserController {
 
   @Roles(UserRole.ADMIN)
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.userService.findAll(paginationDto);
   }
 
   @Get(':id')

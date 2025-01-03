@@ -11,6 +11,8 @@ import { Repository } from 'typeorm';
 import { UserResponseDto } from './dto/response-user.dto';
 import { plainToInstance } from 'class-transformer';
 import { Request } from 'express';
+import { PaginationDto } from 'src/dtos/pagination-dto';
+import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
 
 @Injectable()
 export class UserService {
@@ -39,9 +41,18 @@ export class UserService {
     return plainToInstance(UserResponseDto, result);
   }
 
-  async findAll() {
-    const usersList = await this.userRepository.find();
-    return usersList;
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<UserResponseDto>> {
+    const { page, limit } = paginationDto;
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+    const paginatedResult = await paginate(queryBuilder, page, limit);
+
+    return {
+      ...paginatedResult,
+      data: plainToInstance(UserResponseDto, paginatedResult.data),
+    };
   }
 
   async findOne(id: string): Promise<UserResponseDto> {
