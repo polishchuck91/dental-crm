@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('services')
 export class Service {
@@ -13,6 +19,9 @@ export class Service {
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
+
+  @Column({ type: 'text', nullable: true }) // Add the new column
+  price_comment: string;
 
   @CreateDateColumn()
   created_at: Date;
