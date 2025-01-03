@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AccessTokensService } from './access-tokens.service';
+import { TokenBlacklistService } from 'src/token-blacklist/token-blacklist.service';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { AccessTokensService } from './access-tokens.service';
       }),
     }),
   ],
-  providers: [AccessTokensService],
+  providers: [AccessTokensService, TokenBlacklistService],
   exports: [AccessTokensService],
 })
 export class AccessTokensModule {}
