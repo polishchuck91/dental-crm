@@ -10,42 +10,45 @@ import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
 @Injectable()
 export class ServiceService {
   constructor(
-    @InjectRepository(Service) private serviceRepository: Repository<Service>,
+    @InjectRepository(Service)
+    private readonly serviceRepository: Repository<Service>,
   ) {}
 
   async create(createServiceDto: CreateServiceDto): Promise<Service> {
-    return await this.serviceRepository.save(createServiceDto);
+    const service = this.serviceRepository.create(createServiceDto); // Use create for validation
+    return await this.serviceRepository.save(service);
   }
 
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginatedResult<Service>> {
     const { page, limit } = paginationDto;
-    const queryBuilder = this.serviceRepository.createQueryBuilder('user');
+    const queryBuilder = this.serviceRepository.createQueryBuilder('service');
 
-    const paginatedResult = await paginate(queryBuilder, page, limit);
-
-    return {
-      ...paginatedResult,
-      data: paginatedResult.data,
-    };
+    return await paginate(queryBuilder, page, limit);
   }
 
   async findOne(id: number): Promise<Service> {
     const service = await this.serviceRepository.findOneBy({ id });
-
     if (!service) {
-      throw new NotFoundException();
+      throw new NotFoundException(`Service with ID ${id} not found.`);
     }
-
     return service;
   }
 
-  update(id: number, updateServiceDto: UpdateServiceDto) {
-    return `This action updates a #${id} service`;
+  async update(
+    id: number,
+    updateServiceDto: UpdateServiceDto,
+  ): Promise<Service> {
+    const existingService = await this.findOne(id); // Ensure service exists before updating
+    Object.assign(existingService, updateServiceDto); // Update fields in the entity
+    return await this.serviceRepository.save(existingService);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} service`;
+  async remove(id: number): Promise<void> {
+    const result = await this.serviceRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Service with ID ${id} not found.`);
+    }
   }
 }
