@@ -57,6 +57,10 @@ export class UserService {
 
   async findOne(id: string): Promise<UserResponseDto> {
     const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException();
+    }
+
     return plainToInstance(UserResponseDto, user);
   }
 

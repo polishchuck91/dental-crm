@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { PaginationDto } from 'src/dtos/pagination-dto';
@@ -13,8 +13,8 @@ export class ServiceService {
     @InjectRepository(Service) private serviceRepository: Repository<Service>,
   ) {}
 
-  create(createServiceDto: CreateServiceDto) {
-    return 'This action adds a new service';
+  async create(createServiceDto: CreateServiceDto): Promise<Service> {
+    return await this.serviceRepository.save(createServiceDto);
   }
 
   async findAll(
@@ -31,8 +31,14 @@ export class ServiceService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} service`;
+  async findOne(id: number): Promise<Service> {
+    const service = await this.serviceRepository.findOneBy({ id });
+
+    if (!service) {
+      throw new NotFoundException();
+    }
+
+    return service;
   }
 
   update(id: number, updateServiceDto: UpdateServiceDto) {
