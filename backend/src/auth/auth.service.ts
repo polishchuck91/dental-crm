@@ -35,4 +35,28 @@ export class AuthService {
       refreshToken,
     };
   }
+
+  async refresh(token: string) {
+    try {
+      const payload = await this.tokenService.verifyRefreshToken(token);
+
+      const user = await this.userService.findOne(payload['id']);
+
+      const accessToken = await this.tokenService.generateAccessToken(
+        user.id,
+        user.role,
+      );
+
+      const refreshToken = await this.tokenService.generateRefreshToken(
+        user.id,
+      );
+
+      return {
+        accessToken,
+        refreshToken,
+      };
+    } catch {
+      throw new UnauthorizedException();
+    }
+  }
 }

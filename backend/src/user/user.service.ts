@@ -43,8 +43,9 @@ export class UserService {
     return 'This action returns all users';
   }
 
-  findOne(id: number): string {
-    return `This action returns a #${id} user`;
+  async findOne(id: string): Promise<UserResponseDto> {
+    const user = await this.userRepository.findOneBy({ id });
+    return plainToInstance(UserResponseDto, user);
   }
 
   // Reusable method for finding a user by either email or username

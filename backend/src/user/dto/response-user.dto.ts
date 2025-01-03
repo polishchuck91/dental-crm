@@ -1,8 +1,11 @@
 import { Exclude } from 'class-transformer';
+import { IsUUID } from 'class-validator';
 import { UserRole } from 'src/entities/user.entity';
 
 export class UserResponseDto {
-  id: number;
+  @IsUUID('4', { message: 'The id must be a valid UUID.' })
+  id: string;
+
   username: string;
   email: string;
   role: UserRole;
