@@ -1,32 +1,41 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-
 import * as bcrypt from 'bcrypt';
 import { AccessTokensService } from 'src/access-tokens/access-tokens.service';
+import { TokenBlacklistService } from 'src/token-blacklist/token-blacklist.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
-    private tokenService: AccessTokensService,
+    private readonly userService: UserService,
+    private readonly tokenService: AccessTokensService,
+    private readonly blackListService: TokenBlacklistService,
   ) {}
 
+  /**
+   * Authenticate a user and generate access and refresh tokens
+   */
   async login(userIdentifier: string, password: string) {
+    // Find user by email or username
     const user = userIdentifier.includes('@')
       ? await this.userService.findUserByEmail(userIdentifier)
       : await this.userService.findUserByUsername(userIdentifier);
 
-    const isPasswordMatch = await bcrypt.compareSync(password, user.password);
-
-    if (!isPasswordMatch) {
-      throw new UnauthorizedException();
+    if (!user) {
+      throw new UnauthorizedException('User not found');
     }
 
-    const accessToken = await this.tokenService.generateAccessToken(
-      user.id,
-      user.role,
-    );
-    const refreshToken = await this.tokenService.generateRefreshToken(user.id);
+    // Verify the password
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatch) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Generate access and refresh tokens
+    const [accessToken, refreshToken] = await Promise.all([
+      this.tokenService.generateAccessToken(user.id, user.role),
+      this.tokenService.generateRefreshToken(user.id),
+    ]);
 
     return {
       user: user.email,
@@ -36,27 +45,39 @@ export class AuthService {
     };
   }
 
+  /**
+   * Refresh tokens by validating and rotating the refresh token
+   */
   async refresh(token: string) {
-    try {
-      const payload = await this.tokenService.verifyRefreshToken(token);
-
-      const user = await this.userService.findOne(payload['id']);
-
-      const accessToken = await this.tokenService.generateAccessToken(
-        user.id,
-        user.role,
-      );
-
-      const refreshToken = await this.tokenService.generateRefreshToken(
-        user.id,
-      );
-
-      return {
-        accessToken,
-        refreshToken,
-      };
-    } catch {
-      throw new UnauthorizedException();
+    // Check if the token is blacklisted
+    const isBlacklisted = await this.blackListService.isTokenBlacklisted(token);
+    if (isBlacklisted) {
+      throw new UnauthorizedException('Token is blacklisted');
     }
+
+    let payload;
+    try {
+      // Verify the refresh token
+      payload = await this.tokenService.verifyRefreshToken(token);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+
+    // Retrieve the user by ID from the payload
+    const user = await this.userService.findOne(payload['id']);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Blacklist the used refresh token
+    await this.blackListService.setBlacklistToken(token, payload['exp']);
+
+    // Generate new access and refresh tokens
+    const [accessToken, refreshToken] = await Promise.all([
+      this.tokenService.generateAccessToken(user.id, user.role),
+      this.tokenService.generateRefreshToken(user.id),
+    ]);
+
+    return { accessToken, refreshToken };
   }
 }

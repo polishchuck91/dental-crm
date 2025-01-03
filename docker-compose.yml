@@ -14,12 +14,15 @@ services:
       DATABASE_USER: root
       DATABASE_PASSWORD: root
       DATABASE_NAME: mydb
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       NODE_ENV: development
     volumes:
       - ./backend:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
       - mysql
+      - redis
 
   frontend:
     build:
@@ -45,5 +48,14 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
+  redis:
+    image: redis:latest
+    container_name: dental-crm-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
 volumes:
   mysql-data:
+  redis-data:

@@ -15,6 +15,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { AccessTokensModule } from './access-tokens/access-tokens.module';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TokenBlacklistService } from './token-blacklist/token-blacklist.service';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 
@@ -38,13 +39,13 @@ import jwtConfig from './config/jwt.config';
         synchronize: true, // Disable this in production!
       }),
     }),
+    AuthModule,
     UserModule,
     AppointmentModule,
     EmployeeModule,
     PatientModule,
     ServiceModule,
     UserDetailModule,
-    AuthModule,
     AccessTokensModule,
   ],
   providers: [
@@ -53,6 +54,7 @@ import jwtConfig from './config/jwt.config';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    TokenBlacklistService,
   ],
 })
 export class AppModule {}

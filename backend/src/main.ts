@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { UnprocessableEntityException } from './exceptions/unprocessable-entity.exception';
 
 import { ConfigService } from '@nestjs/config';
+import redis from './redis';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
