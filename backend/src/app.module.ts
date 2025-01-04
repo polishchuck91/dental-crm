@@ -34,7 +34,7 @@ import { RolesGuard } from './auth/roles.guard';
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
-        autoLoadEntities: true,
+        autoLoadEntities: false,
         synchronize: true, // Disable this in production!
       }),
     }),

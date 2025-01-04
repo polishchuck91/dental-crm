@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: dental-crm-backend
     ports:
-      - "5000:3000"
+      - "5000:3000" # Maps port 3000 in the container to port 5000 on the host
     environment:
       DATABASE_HOST: mysql
       DATABASE_PORT: 3306
@@ -18,8 +18,8 @@ services:
       REDIS_PORT: 6379
       NODE_ENV: development
     volumes:
-      - ./backend:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./backend:/usr/src/app # Sync backend code for live updates
+      - /usr/src/app/node_modules # Avoid syncing node_modules
     depends_on:
       - mysql
       - redis
@@ -30,31 +30,34 @@ services:
       dockerfile: Dockerfile
     container_name: dental-crm-frontend
     ports:
-      - "5173:5173"
+      - "5173:5173" # Vite's default port
     environment:
       NODE_ENV: development
+      CHOKIDAR_USEPOLLING: "true" # Enable polling for live reloads
     volumes:
-      - ./frontend:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./frontend:/usr/src/app # Sync frontend code for live updates
+      - /usr/src/app/node_modules # Prevent syncing node_modules
+    depends_on:
+      - backend
 
   mysql:
     image: mysql:8.0
     container_name: dental-crm-db
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mydb
+      MYSQL_ROOT_PASSWORD: root # Set the root password for MySQL
+      MYSQL_DATABASE: mydb # Name of the initial database
     ports:
-      - "3306:3306"
+      - "3306:3306" # Maps MySQL default port
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql # Persistent storage for MySQL
 
   redis:
     image: redis:latest
     container_name: dental-crm-redis
     ports:
-      - "6379:6379"
+      - "6379:6379" # Maps Redis default port
     volumes:
-      - redis-data:/data
+      - redis-data:/data # Persistent storage for Redis
 
 volumes:
   mysql-data:
