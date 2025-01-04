@@ -1,6 +1,7 @@
 import { IsString, IsOptional } from 'class-validator';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
-export class CreateEmployeeDto {
+export class CreateEmployeeDto extends CreateUserDto {
   @IsString()
   first_name: string;
 
