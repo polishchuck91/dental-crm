@@ -3,11 +3,6 @@ import { AppService } from './app.service';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
-import { AppointmentModule } from './appointment/appointment.module';
-import { EmployeeModule } from './employee/employee.module';
-import { PatientModule } from './patient/patient.module';
-import { ServiceModule } from './service/service.module';
-import { UserDetailModule } from './user-detail/user-detail.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
@@ -17,6 +12,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import { RolesGuard } from './auth/roles.guard';
+import { PatientsModule } from './patients/patients.module';
+import { StaffModule } from './staff/staff.module';
+import { AppointmentsModule } from './appointments/appointments.module';
+import { TreatmentsModule } from './treatments/treatments.module';
+import { PatientTreatmentsModule } from './patient-treatments/patient-treatments.module';
+import { BillingModule } from './billing/billing.module';
 
 @Module({
   imports: [
@@ -41,12 +42,13 @@ import { RolesGuard } from './auth/roles.guard';
     }),
     AuthModule,
     UserModule,
-    AppointmentModule,
-    EmployeeModule,
-    PatientModule,
-    ServiceModule,
-    UserDetailModule,
     AccessTokensModule,
+    PatientsModule,
+    StaffModule,
+    AppointmentsModule,
+    TreatmentsModule,
+    PatientTreatmentsModule,
+    BillingModule,
   ],
   providers: [
     AppService,

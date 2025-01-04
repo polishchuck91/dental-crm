@@ -14,7 +14,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { IsPublic } from 'src/decorators/is-public.decorator';
 import { Roles } from 'src/auth/roles.decorator';
-import { UserRole } from 'src/entities/user.entity';
+import { UserRole } from 'src/user/entities/user.entity';
 import { PaginationDto } from 'src/dtos/pagination-dto';
 
 @Controller('users')

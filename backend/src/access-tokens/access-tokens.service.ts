@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UserRole } from 'src/entities/user.entity';
+import { UserRole } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class AccessTokensService {
