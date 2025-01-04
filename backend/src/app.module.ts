@@ -28,14 +28,15 @@ import { RolesGuard } from './auth/roles.guard';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get('database.host'),
-        port: configService.get('database.port'),
-        username: configService.get('database.username'),
-        password: configService.get('database.password'),
-        database: configService.get('database.database'),
-        autoLoadEntities: false,
-        synchronize: true, // Disable this in production!
+        type: configService.get<'mysql'>('database.type'),
+        host: configService.get<string>('database.host'),
+        port: configService.get<number>('database.port'),
+        username: configService.get<string>('database.username'),
+        password: configService.get<string>('database.password'),
+        database: configService.get<string>('database.database'),
+        autoLoadEntities: true, // Automatically load entities from modules
+        synchronize: configService.get<boolean>('database.synchronize'), // Enable only for dev
+        logging: configService.get<boolean>('database.logging'), // Enable query logging
       }),
     }),
     AuthModule,
