@@ -1,15 +1,17 @@
 import { Gender } from 'src/enums/gender.enum';
+import { User } from 'src/user/entities/user.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  OneToOne,
 } from 'typeorm';
 
 @Entity('patients')
 export class Patient {
   @PrimaryGeneratedColumn()
-  patient_id: number;
+  id: number;
 
   @Column()
   first_name: string;
@@ -31,6 +33,9 @@ export class Patient {
 
   @Column({ nullable: true })
   address: string;
+
+  @OneToOne(() => User, (user) => user.patient)
+  user: User;
 
   @CreateDateColumn()
   registration_date: Date;

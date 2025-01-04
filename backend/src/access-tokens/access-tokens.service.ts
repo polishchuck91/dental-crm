@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UserRole } from 'src/user/entities/user.entity';
+import { Role } from 'src/enums/role.enum';
 
 @Injectable()
 export class AccessTokensService {
@@ -16,7 +16,7 @@ export class AccessTokensService {
     this.refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET');
   }
 
-  async generateAccessToken(userId: string, role: UserRole): Promise<string> {
+  async generateAccessToken(userId: string, role: Role): Promise<string> {
     const payload = { sub: userId, role }; // 'sub' is a standard claim for subject
     return this.jwtService.sign(payload, {
       secret: this.accessSecret,

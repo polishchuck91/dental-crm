@@ -6,13 +6,14 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/user/entities/user.entity';
+
 import { Repository } from 'typeorm';
 import { UserResponseDto } from './dto/response-user.dto';
 import { plainToInstance } from 'class-transformer';
 import { Request } from 'express';
 import { PaginationDto } from 'src/dtos/pagination-dto';
 import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
@@ -95,7 +96,7 @@ export class UserService {
     return plainToInstance(UserResponseDto, mySelf);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto): string {
+  update(id: string, updateUserDto: UpdateUserDto): string {
     return `This action updates a #${id} user`;
   }
 

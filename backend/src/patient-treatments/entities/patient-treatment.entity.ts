@@ -8,13 +8,13 @@ export class PatientTreatment {
   @PrimaryGeneratedColumn()
   patient_treatment_id: number;
 
-  @ManyToOne(() => Patient, (patient) => patient.patient_id)
+  @ManyToOne(() => Patient, (patient) => patient.id)
   patient: Patient;
 
-  @ManyToOne(() => Treatment, (treatment) => treatment.treatment_id)
+  @ManyToOne(() => Treatment, (treatment) => treatment.id)
   treatment: Treatment;
 
-  @ManyToOne(() => Appointment, (appointment) => appointment.appointment_id)
+  @ManyToOne(() => Appointment, (appointment) => appointment.id)
   appointment: Appointment;
 
   @Column({ nullable: true })

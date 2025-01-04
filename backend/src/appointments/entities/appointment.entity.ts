@@ -6,12 +6,12 @@ import { AppointmentStatus } from 'src/enums/appointment-status.enum';
 @Entity('appointments')
 export class Appointment {
   @PrimaryGeneratedColumn()
-  appointment_id: number;
+  id: number;
 
-  @ManyToOne(() => Patient, (patient) => patient.patient_id)
+  @ManyToOne(() => Patient, (patient) => patient.id)
   patient: Patient;
 
-  @ManyToOne(() => Staff, (staff) => staff.staff_id)
+  @ManyToOne(() => Staff, (staff) => staff.id)
   staff: Staff;
 
   @Column({ type: 'datetime' })

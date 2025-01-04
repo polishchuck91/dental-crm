@@ -8,10 +8,10 @@ export class Billing {
   @PrimaryGeneratedColumn()
   bill_id: number;
 
-  @ManyToOne(() => Patient, (patient) => patient.patient_id)
+  @ManyToOne(() => Patient, (patient) => patient.id)
   patient: Patient;
 
-  @ManyToOne(() => Appointment, (appointment) => appointment.appointment_id)
+  @ManyToOne(() => Appointment, (appointment) => appointment.id)
   appointment: Appointment;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })

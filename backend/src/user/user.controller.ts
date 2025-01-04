@@ -13,9 +13,10 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { IsPublic } from 'src/decorators/is-public.decorator';
-import { Roles } from 'src/auth/roles.decorator';
-import { UserRole } from 'src/user/entities/user.entity';
+
 import { PaginationDto } from 'src/dtos/pagination-dto';
+import { Role } from 'src/enums/role.enum';
+import { Roles } from 'src/auth/roles.decorator';
 
 @Controller('users')
 export class UserController {
@@ -32,7 +33,7 @@ export class UserController {
     return this.userService.getMySelf(request);
   }
 
-  @Roles(UserRole.ADMIN)
+  @Roles(Role.Admin)
   @Get()
   findAll(@Query() paginationDto: PaginationDto) {
     return this.userService.findAll(paginationDto);
@@ -45,10 +46,10 @@ export class UserController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+    return this.userService.update(id, updateUserDto);
   }
 
-  @Roles(UserRole.ADMIN)
+  @Roles(Role.Admin)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(id);

@@ -4,15 +4,18 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   BeforeInsert,
+  JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Staff } from '../../staff/entities/staff.entity';
 import { Role } from 'src/enums/role.enum';
+import { Patient } from 'src/patients/entities/patient.entity';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
-  user_id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ unique: true })
   username: string;
@@ -28,10 +31,14 @@ export class User {
     enum: Role,
     default: Role.Guest,
   })
-  role: string;
+  role: Role;
 
-  @ManyToOne(() => Staff, (staff) => staff.staff_id)
+  @ManyToOne(() => Staff, (staff) => staff.user, { nullable: true })
   staff: Staff;
+
+  @OneToOne(() => Patient, (patient) => patient.user, { nullable: true })
+  @JoinColumn()
+  patient: Patient;
 
   @BeforeInsert()
   async setPasswordHash() {

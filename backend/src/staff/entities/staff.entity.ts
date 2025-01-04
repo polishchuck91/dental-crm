@@ -1,11 +1,12 @@
 import { Gender } from 'src/enums/gender.enum';
 import { Role } from 'src/enums/role.enum';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from 'src/user/entities/user.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
 
 @Entity('staff')
 export class Staff {
   @PrimaryGeneratedColumn()
-  staff_id: number;
+  id: number;
 
   @Column()
   first_name: string;
@@ -30,4 +31,7 @@ export class Staff {
 
   @Column({ type: 'date' })
   hire_date: Date;
+
+  @OneToOne(() => User, (user) => user.staff)
+  user: User;
 }
