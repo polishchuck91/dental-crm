@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTreatmentDto } from './dto/create-treatment.dto';
 import { UpdateTreatmentDto } from './dto/update-treatment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,8 @@ import { Treatment } from './entities/treatment.entity';
 import { Repository } from 'typeorm';
 import { PaginationDto } from 'src/dtos/pagination-dto';
 import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
+import { TreatmentResponseDto } from 'src/dtos/treatment-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class TreatmentsService {
@@ -13,13 +15,21 @@ export class TreatmentsService {
     @InjectRepository(Treatment)
     private treatmentRepository: Repository<Treatment>,
   ) {}
-  create(createTreatmentDto: CreateTreatmentDto) {
-    return 'This action adds a new treatment';
+
+  async create(
+    createTreatmentDto: CreateTreatmentDto,
+  ): Promise<TreatmentResponseDto> {
+    const treatment = this.treatmentRepository.create(createTreatmentDto);
+    const result = await this.treatmentRepository.save(treatment);
+
+    return plainToInstance(TreatmentResponseDto, result, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async findAll(
     paginationDto: PaginationDto,
-  ): Promise<PaginatedResult<Treatment>> {
+  ): Promise<PaginatedResult<TreatmentResponseDto>> {
     const { page, limit, search, orderBy } = paginationDto;
     const queryBuilder =
       await this.treatmentRepository.createQueryBuilder('treatments');
@@ -37,19 +47,39 @@ export class TreatmentsService {
 
     return {
       ...paginatedResult,
-      data: paginatedResult.data,
+      data: plainToInstance(TreatmentResponseDto, paginatedResult.data, {
+        excludeExtraneousValues: true,
+      }),
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} treatment`;
+  async findOne(id: number): Promise<TreatmentResponseDto> {
+    const treatment = await this.treatmentRepository.findOne({ where: { id } });
+    if (!treatment) {
+      throw new NotFoundException(`Treatment with ID ${id} not found.`);
+    }
+    return plainToInstance(TreatmentResponseDto, treatment, {
+      excludeExtraneousValues: true,
+    });
   }
 
-  update(id: number, updateTreatmentDto: UpdateTreatmentDto) {
-    return `This action updates a #${id} treatment`;
+  async update(
+    id: number,
+    updateTreatmentDto: UpdateTreatmentDto,
+  ): Promise<TreatmentResponseDto> {
+    const treatment = await this.findOne(id); // Ensure treatment exists
+    const updatedTreatment = this.treatmentRepository.merge(
+      treatment,
+      updateTreatmentDto,
+    );
+    return this.treatmentRepository.save(updatedTreatment);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} treatment`;
+  async remove(id: number): Promise<void> {
+    const treatment = await this.findOne(id); // Ensure treatment exists
+    if (!treatment) {
+      throw new NotFoundException(`Treatment with ID ${id} not found.`);
+    }
+    await this.treatmentRepository.remove(treatment);
   }
 }
