@@ -2,9 +2,10 @@ import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
 import { Patient } from '../../patients/entities/patient.entity';
 import { Appointment } from '../../appointments/entities/appointment.entity';
 import { PaymentStatus } from 'src/enums/payment-status.enum';
+import { TimestampsEntity } from 'src/entities/timestamps.entity';
 
 @Entity('billing')
-export class Billing {
+export class Billing extends TimestampsEntity {
   @PrimaryGeneratedColumn()
   bill_id: number;
 

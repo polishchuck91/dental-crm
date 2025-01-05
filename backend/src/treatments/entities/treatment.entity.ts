@@ -1,7 +1,8 @@
+import { TimestampsEntity } from 'src/entities/timestamps.entity';
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('treatments')
-export class Treatment {
+export class Treatment extends TimestampsEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -1,3 +1,4 @@
+import { TimestampsEntity } from 'src/entities/timestamps.entity';
 import { Gender } from 'src/enums/gender.enum';
 import { User } from 'src/user/entities/user.entity';
 import {
@@ -9,7 +10,7 @@ import {
 } from 'typeorm';
 
 @Entity('patients')
-export class Patient {
+export class Patient extends TimestampsEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

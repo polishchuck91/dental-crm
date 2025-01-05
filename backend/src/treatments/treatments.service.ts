@@ -24,7 +24,7 @@ export class TreatmentsService {
     const queryBuilder =
       await this.treatmentRepository.createQueryBuilder('treatments');
 
-    const searchFields = ['treatment_name'];
+    const searchFields = ['treatment_name', 'description'];
 
     const paginatedResult = await paginate(
       queryBuilder,
@@ -32,7 +32,7 @@ export class TreatmentsService {
       limit,
       searchFields,
       search,
-      orderBy,
+      orderBy || [{ field: 'treatment_name', direction: 'ASC' }],
     );
 
     return {

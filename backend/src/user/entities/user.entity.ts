@@ -11,9 +11,10 @@ import * as bcrypt from 'bcrypt';
 import { Staff } from '../../staff/entities/staff.entity';
 import { Role } from 'src/enums/role.enum';
 import { Patient } from 'src/patients/entities/patient.entity';
+import { TimestampsEntity } from 'src/entities/timestamps.entity';
 
 @Entity('users')
-export class User {
+export class User extends TimestampsEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
