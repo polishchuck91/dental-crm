@@ -14,7 +14,7 @@ export interface PaginatedResult<T> {
 }
 
 export async function paginate<T>(
-  queryBuilder: SelectQueryBuilder<T>,
+  query: SelectQueryBuilder<T>,
   page: number = 1,
   limit: number = 10,
   searchFields?: string[],
@@ -26,16 +26,16 @@ export async function paginate<T>(
       .map((field) => `${field} LIKE :search`)
       .join(' OR '); // Combine conditions with OR
 
-    queryBuilder.andWhere(`(${searchConditions})`, { search: `%${search}%` });
+    query.andWhere(`(${searchConditions})`, { search: `%${search}%` });
   }
 
   if (orderBy?.length) {
     for (const { field, direction } of orderBy) {
-      queryBuilder.addOrderBy(field, direction);
+      query.addOrderBy(field, direction);
     }
   }
 
-  const [data, total] = await queryBuilder
+  const [data, total] = await query
     .skip((page - 1) * limit)
     .take(limit)
     .getManyAndCount();

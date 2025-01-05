@@ -1,21 +1,21 @@
-import { IsNotEmpty, IsEmail, IsEnum, IsDateString } from 'class-validator';
-import { Role } from '../../enums/role.enum';
+import { IsNotEmpty, IsEnum, IsDateString } from 'class-validator';
+import { Gender } from 'src/enums/gender.enum';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
-export class CreateStaffDto {
+export class CreateStaffDto extends CreateUserDto {
   @IsNotEmpty()
   first_name: string;
 
   @IsNotEmpty()
   last_name: string;
 
-  @IsEnum(Role)
-  role: Role;
-
   @IsNotEmpty()
   contact_number: string;
 
-  @IsEmail()
-  email: string;
+  @IsEnum(Gender, {
+    message: 'gender must be one of the following values: Male, Female, Other',
+  })
+  gender: Gender; // Use Gender type to align with the entity
 
   @IsDateString()
   hire_date: string;

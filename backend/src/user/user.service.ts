@@ -46,6 +46,7 @@ export class UserService {
     paginationDto: PaginationDto,
   ): Promise<PaginatedResult<UserResponseDto>> {
     const { page, limit } = paginationDto;
+
     const queryBuilder = await this.userRepository.createQueryBuilder('users');
 
     const paginatedResult = await paginate(queryBuilder, page, limit);

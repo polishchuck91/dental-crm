@@ -2,7 +2,6 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  ManyToOne,
   BeforeInsert,
   JoinColumn,
   OneToOne,
@@ -34,12 +33,12 @@ export class User extends TimestampsEntity {
   })
   role: Role;
 
-  @ManyToOne(() => Staff, (staff) => staff.user, { nullable: true })
-  staff: Staff;
-
   @OneToOne(() => Patient, (patient) => patient.user, { nullable: true })
   @JoinColumn()
   patient: Patient;
+
+  @OneToOne(() => Staff, (staff) => staff.user)
+  staff: Staff;
 
   @BeforeInsert()
   async setPasswordHash() {

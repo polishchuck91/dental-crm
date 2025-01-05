@@ -1,8 +1,13 @@
 import { TimestampsEntity } from 'src/entities/timestamps.entity';
 import { Gender } from 'src/enums/gender.enum';
-import { Role } from 'src/enums/role.enum';
 import { User } from 'src/user/entities/user.entity';
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity('staff')
 export class Staff extends TimestampsEntity {
@@ -15,24 +20,16 @@ export class Staff extends TimestampsEntity {
   @Column()
   last_name: string;
 
-  @Column({
-    type: 'enum',
-    enum: Role,
-  })
-  role: string;
-
   @Column({ type: 'enum', enum: Gender })
-  gender: string;
+  gender: Gender;
 
   @Column({ length: 15 })
   contact_number: string;
 
-  @Column({ unique: true })
-  email: string;
-
   @Column({ type: 'date' })
-  hire_date: Date;
+  hire_date: string;
 
-  @OneToOne(() => User, (user) => user.staff)
+  @OneToOne(() => User, (user) => user.id, { cascade: true })
+  @JoinColumn()
   user: User;
 }
