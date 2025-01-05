@@ -1,7 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { TreatmentsService } from './treatments.service';
 import { CreateTreatmentDto } from './dto/create-treatment.dto';
 import { UpdateTreatmentDto } from './dto/update-treatment.dto';
+import { PaginationDto } from 'src/dtos/pagination-dto';
 
 @Controller('treatments')
 export class TreatmentsController {
@@ -13,8 +23,8 @@ export class TreatmentsController {
   }
 
   @Get()
-  findAll() {
-    return this.treatmentsService.findAll();
+  findAll(@Query() paginateDto: PaginationDto) {
+    return this.treatmentsService.findAll(paginateDto);
   }
 
   @Get(':id')
@@ -23,7 +33,10 @@ export class TreatmentsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTreatmentDto: UpdateTreatmentDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTreatmentDto: UpdateTreatmentDto,
+  ) {
     return this.treatmentsService.update(+id, updateTreatmentDto);
   }
 

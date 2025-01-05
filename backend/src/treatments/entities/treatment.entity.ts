@@ -11,7 +11,7 @@ export class Treatment {
   @Column({ nullable: true })
   description: string;
 
-  @Column()
+  @Column({ nullable: true })
   cost_comment: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })

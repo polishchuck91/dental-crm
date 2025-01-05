@@ -1,15 +1,44 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTreatmentDto } from './dto/create-treatment.dto';
 import { UpdateTreatmentDto } from './dto/update-treatment.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Treatment } from './entities/treatment.entity';
+import { Repository } from 'typeorm';
+import { PaginationDto } from 'src/dtos/pagination-dto';
+import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
 
 @Injectable()
 export class TreatmentsService {
+  constructor(
+    @InjectRepository(Treatment)
+    private treatmentRepository: Repository<Treatment>,
+  ) {}
   create(createTreatmentDto: CreateTreatmentDto) {
     return 'This action adds a new treatment';
   }
 
-  findAll() {
-    return `This action returns all treatments`;
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<Treatment>> {
+    const { page, limit, search, orderBy } = paginationDto;
+    const queryBuilder =
+      await this.treatmentRepository.createQueryBuilder('treatments');
+
+    const searchFields = ['treatment_name'];
+
+    const paginatedResult = await paginate(
+      queryBuilder,
+      page,
+      limit,
+      searchFields,
+      search,
+      orderBy,
+    );
+
+    return {
+      ...paginatedResult,
+      data: paginatedResult.data,
+    };
   }
 
   findOne(id: number) {
