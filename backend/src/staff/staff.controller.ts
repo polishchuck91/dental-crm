@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { StaffService } from './staff.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
@@ -42,7 +43,7 @@ export class StaffController {
   }
 
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.staffService.remove(+id);
   }

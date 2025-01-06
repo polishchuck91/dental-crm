@@ -9,6 +9,7 @@ import {
   Req,
   Query,
   HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -52,7 +53,7 @@ export class UserController {
 
   @Roles(Role.Admin)
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.userService.remove(id);
   }
