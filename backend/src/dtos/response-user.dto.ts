@@ -19,9 +19,9 @@ export class UserResponseDto {
   @Exclude()
   password: string;
 
-  @Exclude()
-  createdAt: Date;
+  @Expose()
+  created_at: Date;
 
   @Exclude()
-  updatedAt: Date;
+  updated_at: Date;
 }

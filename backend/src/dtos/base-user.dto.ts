@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import {
   IsString,
   IsEmail,
@@ -8,6 +9,7 @@ import {
 } from 'class-validator';
 
 export class UserPasswordDto {
+  @Expose()
   @IsString()
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
   @MaxLength(20, { message: 'Password must not exceed 20 characters' })
@@ -29,10 +31,12 @@ export class UserPasswordDto {
 
 // Base DTO class with shared validation rules
 export class BaseUserDto extends UserPasswordDto {
+  @Expose()
   @IsString()
   @IsNotEmpty({ message: 'Username is required' })
   username: string;
 
+  @Expose()
   @IsEmail({}, { message: 'Invalid email format' })
   @IsNotEmpty({ message: 'Email is required' })
   email: string;

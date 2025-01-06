@@ -8,12 +8,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
-import { UserResponseDto } from './dto/response-user.dto';
+import { UserResponseDto } from '../dtos/response-user.dto';
 import { plainToInstance } from 'class-transformer';
 import { Request } from 'express';
 import { PaginationDto } from 'src/dtos/pagination-dto';
 import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
 import { User } from './entities/user.entity';
+import { Role } from 'src/enums/role.enum';
+import { MySelfDtoResponse } from 'src/dtos/my-self-response.dto';
 
 @Injectable()
 export class UserService {
@@ -45,15 +47,26 @@ export class UserService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginatedResult<UserResponseDto>> {
-    const { page, limit } = paginationDto;
+    const { page, limit, q, orderBy } = paginationDto;
 
     const queryBuilder = await this.userRepository.createQueryBuilder('users');
 
-    const paginatedResult = await paginate(queryBuilder, page, limit);
+    const searchFields = ['username', 'email'];
+
+    const paginatedResult = await paginate(
+      queryBuilder,
+      page,
+      limit,
+      searchFields,
+      q,
+      orderBy || [{ field: 'created_at', direction: 'DESC' }],
+    );
 
     return {
       ...paginatedResult,
-      data: plainToInstance(UserResponseDto, paginatedResult.data),
+      data: plainToInstance(UserResponseDto, paginatedResult.data, {
+        excludeExtraneousValues: true,
+      }),
     };
   }
 
@@ -84,17 +97,34 @@ export class UserService {
     return this.findUserByField('username', username);
   }
 
-  // Refactor to get current user based on request
-  async getMySelf(request: Request): Promise<UserResponseDto> {
-    const mySelf = await this.userRepository.findOneBy({
-      id: request['user']['id'],
-    });
+  async getMySelf(request: Request) {
+    const currentUser: { id: string; role: Role } = request['user'];
 
-    if (!mySelf) {
-      throw new NotFoundException('User not found');
+    const mySelfQuery = this.userRepository.createQueryBuilder('user');
+
+    if (currentUser.role !== Role.Patient) {
+      mySelfQuery.leftJoinAndSelect('user.staff', 'staff');
     }
 
-    return plainToInstance(UserResponseDto, mySelf);
+    try {
+      const mySelf = await mySelfQuery
+        .where('user.id = :userId', { userId: currentUser.id })
+        .getOne();
+
+      if (!mySelf) {
+        throw new NotFoundException('User not found');
+      }
+
+      const data = plainToInstance(MySelfDtoResponse, mySelf, {
+        excludeExtraneousValues: true,
+      });
+
+      console.log(data);
+
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to retrieve user: ${error.message}`);
+    }
   }
 
   update(id: string, updateUserDto: UpdateUserDto): string {
