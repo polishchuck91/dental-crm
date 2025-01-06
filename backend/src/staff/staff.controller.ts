@@ -22,6 +22,7 @@ export class StaffController {
   constructor(private readonly staffService: StaffService) {}
 
   @Post()
+  @Roles(Role.Admin)
   create(@Body() createStaffDto: CreateStaffDto) {
     return this.staffService.create(createStaffDto);
   }
@@ -33,16 +34,19 @@ export class StaffController {
   }
 
   @Get(':id')
+  @Roles(Role.Admin, Role.Receptionist)
   findOne(@Param('id') id: string) {
     return this.staffService.findOne(id);
   }
 
   @Patch(':id')
+  @Roles(Role.Admin)
   update(@Param('id') id: string, @Body() updateStaffDto: UpdateStaffDto) {
     return this.staffService.update(+id, updateStaffDto);
   }
 
   @Delete(':id')
+  @Roles(Role.Admin)
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.staffService.remove(+id);

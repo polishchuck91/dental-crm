@@ -12,7 +12,7 @@ import { DataSource, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
 import { PaginationDto } from 'src/dtos/pagination-dto';
-import { StaffResponseDto } from 'src/dtos/staff-response.dto';
+import { StaffDto, StaffResponseDto } from 'src/dtos/staff-response.dto';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()
@@ -64,7 +64,6 @@ export class StaffService {
       const staff = queryRunner.manager.create(Staff, {
         first_name,
         last_name,
-
         gender,
         contact_number,
         hire_date: formattedHireDate,
@@ -158,14 +157,21 @@ export class StaffService {
     });
   }
 
-  async update(id: number, updateStaffDto: UpdateStaffDto) {
+  async update(id: number, updateStaffDto: UpdateStaffDto): Promise<StaffDto> {
     const staff = await this.staffRepository.findOneBy({ id });
     if (!staff) {
       throw new NotFoundException();
     }
 
-    const updatedStaff = this.staffRepository.merge(staff, updateStaffDto);
-    return this.staffRepository.save(updatedStaff);
+    const updatedStaff = await this.staffRepository.merge(
+      staff,
+      updateStaffDto,
+    );
+    const updatedData = await this.staffRepository.save(updatedStaff);
+
+    return plainToInstance(StaffDto, updatedData, {
+      excludeExtraneousValues: true, // Only include explicitly exposed fields
+    });
   }
 
   async remove(id: number): Promise<void> {

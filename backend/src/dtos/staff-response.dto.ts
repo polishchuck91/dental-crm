@@ -1,7 +1,7 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { UserResponseDto } from 'src/dtos/response-user.dto';
 
-export abstract class StaffDto {
+export class StaffDto {
   @Expose()
   id: number;
 
