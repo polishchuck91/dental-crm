@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateStaffDto } from './dto/create-staff.dto';
@@ -159,8 +158,14 @@ export class StaffService {
     });
   }
 
-  update(id: number, updateStaffDto: UpdateStaffDto) {
-    return `This action updates a #${id} staff`;
+  async update(id: number, updateStaffDto: UpdateStaffDto) {
+    const staff = await this.staffRepository.findOneBy({ id });
+    if (!staff) {
+      throw new NotFoundException();
+    }
+
+    const updatedStaff = this.staffRepository.merge(staff, updateStaffDto);
+    return this.staffRepository.save(updatedStaff);
   }
 
   async remove(id: number): Promise<void> {

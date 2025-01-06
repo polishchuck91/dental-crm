@@ -68,6 +68,9 @@ export class TreatmentsService {
     updateTreatmentDto: UpdateTreatmentDto,
   ): Promise<TreatmentResponseDto> {
     const treatment = await this.findOne(id); // Ensure treatment exists
+    if (!treatment) {
+      throw new NotFoundException();
+    }
     const updatedTreatment = this.treatmentRepository.merge(
       treatment,
       updateTreatmentDto,
