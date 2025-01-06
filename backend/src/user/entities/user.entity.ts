@@ -3,13 +3,11 @@ import {
   Column,
   PrimaryGeneratedColumn,
   BeforeInsert,
-  JoinColumn,
   OneToOne,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Staff } from '../../staff/entities/staff.entity';
 import { Role } from 'src/enums/role.enum';
-import { Patient } from 'src/patients/entities/patient.entity';
 import { TimestampsEntity } from 'src/entities/timestamps.entity';
 
 @Entity('users')
@@ -33,11 +31,10 @@ export class User extends TimestampsEntity {
   })
   role: Role;
 
-  @OneToOne(() => Patient, (patient) => patient.user, { nullable: true })
-  @JoinColumn()
-  patient: Patient;
-
-  @OneToOne(() => Staff, (staff) => staff.user)
+  @OneToOne(() => Staff, (staff) => staff.user, {
+    cascade: true, // Cascade delete to Staff
+    onDelete: 'CASCADE', // Ensure database-level cascade
+  })
   staff: Staff;
 
   @BeforeInsert()

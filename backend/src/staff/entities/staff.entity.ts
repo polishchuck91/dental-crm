@@ -29,7 +29,9 @@ export class Staff extends TimestampsEntity {
   @Column({ type: 'date' })
   hire_date: string;
 
-  @OneToOne(() => User, (user) => user.id, { cascade: true })
-  @JoinColumn()
+  @OneToOne(() => User, (user) => user.staff, {
+    onDelete: 'CASCADE', // Ensures the User is deleted when Staff is deleted
+  })
+  @JoinColumn({ name: 'userId' }) // Specifies that Staff is the owning side
   user: User;
 }

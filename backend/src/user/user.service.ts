@@ -101,7 +101,15 @@ export class UserService {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: string): string {
+  async remove(id: string): Promise<string> {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    await this.userRepository.delete(id);
+
     return `This action removes a #${id} user`;
   }
 }

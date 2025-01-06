@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
@@ -36,6 +38,12 @@ export class StaffService {
       email,
       password,
     } = createStaffDto;
+
+    const user = await this.userRepository.findOneBy({ email });
+
+    if (user) {
+      throw new ConflictException();
+    }
 
     const queryRunner = this.dataSource.createQueryRunner();
 
@@ -87,9 +95,19 @@ export class StaffService {
   ): Promise<PaginatedResult<StaffResponseDto>> {
     const { page, limit } = paginationDto;
 
-    const staffQuery = this.staffRepository
+    const staffQuery = await this.staffRepository
       .createQueryBuilder('staff')
-      .leftJoinAndSelect('staff.user', 'user');
+      .leftJoinAndSelect('staff.user', 'user')
+      .select([
+        // Staff fields
+        'staff.id',
+        'staff.first_name',
+        'staff.last_name',
+        'staff.gender',
+        'staff.contact_number',
+        'user.id',
+        'user.email',
+      ]);
 
     const paginatedResult = await paginate(staffQuery, page, limit);
 
@@ -107,15 +125,41 @@ export class StaffService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} staff`;
+  async findOne(id: string): Promise<StaffResponseDto> {
+    // Query the staff entity and join the user relation
+    const staff = await this.staffRepository
+      .createQueryBuilder('staff')
+      .leftJoinAndSelect('staff.user', 'user') // Join user relation
+      .where('staff.id = :id', { id }) // Use the correct field (staff.id)
+      .getOne();
+
+    // Throw an error if no staff is found
+    if (!staff) {
+      throw new NotFoundException(`Staff with ID ${id} not found.`);
+    }
+
+    // Transform the entity to the DTO
+    return plainToInstance(StaffResponseDto, staff, {
+      excludeExtraneousValues: true, // Only include explicitly exposed fields
+    });
   }
 
   update(id: number, updateStaffDto: UpdateStaffDto) {
     return `This action updates a #${id} staff`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} staff`;
+  async remove(id: number): Promise<void> {
+    // Find the staff entity and load the related user
+    const staff = await this.staffRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+
+    if (!staff) {
+      throw new NotFoundException(`Staff with ID ${id} not found.`);
+    }
+
+    // Remove the staff; cascading delete will handle the user
+    await this.userRepository.remove(staff.user);
   }
 }

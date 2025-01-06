@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  HttpCode,
 } from '@nestjs/common';
 import { StaffService } from './staff.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
@@ -29,7 +30,7 @@ export class StaffController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.staffService.findOne(+id);
+    return this.staffService.findOne(id);
   }
 
   @Patch(':id')
@@ -38,6 +39,7 @@ export class StaffController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   remove(@Param('id') id: string) {
     return this.staffService.remove(+id);
   }

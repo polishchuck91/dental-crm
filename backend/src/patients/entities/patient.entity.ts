@@ -35,9 +35,6 @@ export class Patient extends TimestampsEntity {
   @Column({ nullable: true })
   address: string;
 
-  @OneToOne(() => User, (user) => user.patient)
-  user: User;
-
   @CreateDateColumn()
   registration_date: Date;
 }
