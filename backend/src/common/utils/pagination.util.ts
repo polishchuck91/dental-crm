@@ -18,15 +18,15 @@ export async function paginate<T>(
   page: number = 1,
   limit: number = 10,
   searchFields?: string[],
-  search?: string,
+  q?: string,
   orderBy?: OrderBy[], // Array of fields and directions
 ): Promise<PaginatedResult<T>> {
-  if (search && searchFields?.length) {
+  if (q && searchFields?.length) {
     const searchConditions = searchFields
       .map((field) => `${field} LIKE :search`)
       .join(' OR '); // Combine conditions with OR
 
-    query.andWhere(`(${searchConditions})`, { search: `%${search}%` });
+    query.andWhere(`(${searchConditions})`, { search: `%${q}%` });
   }
 
   if (orderBy?.length) {

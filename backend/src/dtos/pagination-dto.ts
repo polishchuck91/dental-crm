@@ -35,7 +35,7 @@ export class PaginationDto {
 
   @IsOptional()
   @IsString()
-  search?: string;
+  q?: string;
 
   @IsOptional()
   @IsArray()

@@ -13,6 +13,8 @@ import { StaffService } from './staff.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
 import { PaginationDto } from 'src/dtos/pagination-dto';
+import { Roles } from 'src/auth/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 
 @Controller('staff')
 export class StaffController {
@@ -24,6 +26,7 @@ export class StaffController {
   }
 
   @Get()
+  @Roles(Role.Admin, Role.Receptionist)
   findAll(@Query() paginationDto: PaginationDto) {
     return this.staffService.findAll(paginationDto);
   }
