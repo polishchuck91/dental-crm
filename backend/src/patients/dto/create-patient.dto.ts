@@ -6,8 +6,9 @@ import {
   IsOptional,
 } from 'class-validator';
 import { Gender } from '../../enums/gender.enum';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
-export class CreatePatientDto {
+export class CreatePatientDto extends CreateUserDto {
   @IsNotEmpty()
   first_name: string;
 
@@ -22,9 +23,6 @@ export class CreatePatientDto {
 
   @IsNotEmpty()
   contact_number: string;
-
-  @IsEmail()
-  email: string;
 
   @IsOptional()
   address?: string;

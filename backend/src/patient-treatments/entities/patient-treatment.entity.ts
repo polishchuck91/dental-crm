@@ -7,7 +7,7 @@ import { TimestampsEntity } from 'src/entities/timestamps.entity';
 @Entity('patient_treatments')
 export class PatientTreatment extends TimestampsEntity {
   @PrimaryGeneratedColumn()
-  patient_treatment_id: number;
+  id: number;
 
   @ManyToOne(() => Patient, (patient) => patient.id)
   patient: Patient;

@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { Staff } from '../../staff/entities/staff.entity';
 import { Role } from 'src/enums/role.enum';
 import { TimestampsEntity } from 'src/entities/timestamps.entity';
+import { Patient } from 'src/patients/entities/patient.entity';
 
 @Entity('users')
 export class User extends TimestampsEntity {
@@ -36,6 +37,12 @@ export class User extends TimestampsEntity {
     onDelete: 'CASCADE', // Ensure database-level cascade
   })
   staff: Staff;
+
+  @OneToOne(() => Patient, (patient) => patient.user, {
+    cascade: true, // Cascade delete to Staff
+    onDelete: 'CASCADE', // Ensure database-level cascade
+  })
+  patient: Staff;
 
   @BeforeInsert()
   async setPasswordHash() {
