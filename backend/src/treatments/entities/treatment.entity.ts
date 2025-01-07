@@ -6,7 +6,7 @@ export class Treatment extends TimestampsEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   treatment_name: string;
 
   @Column({ nullable: true })

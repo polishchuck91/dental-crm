@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
@@ -95,7 +96,17 @@ export class PatientsService {
     return `This action updates a #${id} patient`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} patient`;
+  async remove(id: number): Promise<void> {
+    const patient = await this.patientRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+
+    if (!patient) {
+      throw new NotFoundException(`Staff with ID ${id} not found.`);
+    }
+
+    // Remove the staff; cascading delete will handle the user
+    await this.userRepository.remove(patient.user);
   }
 }

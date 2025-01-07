@@ -23,7 +23,7 @@ export class Staff extends TimestampsEntity {
   @Column({ type: 'enum', enum: Gender })
   gender: Gender;
 
-  @Column({ length: 15 })
+  @Column({ length: 15, unique: true })
   contact_number: string;
 
   @Column({ type: 'date' })

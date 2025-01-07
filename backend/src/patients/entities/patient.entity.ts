@@ -26,7 +26,7 @@ export class Patient extends TimestampsEntity {
   @Column({ type: 'enum', enum: Gender })
   gender: string;
 
-  @Column({ length: 15 })
+  @Column({ length: 15, unique: true })
   contact_number: string;
 
   @Column({ nullable: true })
