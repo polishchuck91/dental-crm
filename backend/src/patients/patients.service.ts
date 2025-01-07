@@ -10,6 +10,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Patient } from './entities/patient.entity';
 import { DataSource, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
+import { PaginationDto } from 'src/dtos/pagination-dto';
+import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
+import { PatientsResponseDto } from 'src/dtos/patients-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class PatientsService {
@@ -84,8 +88,43 @@ export class PatientsService {
     }
   }
 
-  findAll() {
-    return `This action returns all patients`;
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<PatientsResponseDto>> {
+    const { page, limit, q, orderBy } = paginationDto;
+
+    const patientsQuery = await this.patientRepository
+      .createQueryBuilder('patients')
+      .leftJoinAndSelect('patients.user', 'user');
+
+    const searchFields = [
+      'first_name',
+      'last_name',
+      'contact_number',
+      'user.email',
+    ];
+
+    const paginatedResult = await paginate(
+      patientsQuery,
+      page,
+      limit,
+      searchFields,
+      q,
+      orderBy || [{ field: 'patients.created_at', direction: 'DESC' }],
+    );
+
+    const transfromData = plainToInstance(
+      PatientsResponseDto,
+      paginatedResult.data,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    return {
+      ...paginatedResult,
+      data: transfromData,
+    };
   }
 
   findOne(id: number) {

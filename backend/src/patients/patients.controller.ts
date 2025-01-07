@@ -8,12 +8,14 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/enums/role.enum';
+import { PaginationDto } from 'src/dtos/pagination-dto';
 
 @Controller('patients')
 export class PatientsController {
@@ -27,8 +29,8 @@ export class PatientsController {
 
   @Get()
   @Roles(Role.Admin, Role.Receptionist, Role.Dentist)
-  findAll() {
-    return this.patientsService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.patientsService.findAll(paginationDto);
   }
 
   @Get(':id')
