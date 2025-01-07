@@ -12,8 +12,12 @@ import { DataSource, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { PaginationDto } from 'src/dtos/pagination-dto';
 import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
-import { PatientsResponseDto } from 'src/dtos/patients-response.dto';
+import {
+  PatientDto,
+  PatientsResponseDto,
+} from 'src/dtos/patients-response.dto';
 import { plainToInstance } from 'class-transformer';
+import { StaffResponseDto } from 'src/dtos/staff-response.dto';
 
 @Injectable()
 export class PatientsService {
@@ -101,6 +105,7 @@ export class PatientsService {
       'first_name',
       'last_name',
       'contact_number',
+      'address',
       'user.email',
     ];
 
@@ -127,12 +132,40 @@ export class PatientsService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} patient`;
+  async findOne(id: number) {
+    // Query the staff entity and join the user relation
+    const staff = await this.patientRepository
+      .createQueryBuilder('patients')
+      .leftJoinAndSelect('patients.user', 'user') // Join user relation
+      .where('patients.id = :id', { id }) // Use the correct field (staff.id)
+      .getOne();
+
+    // Throw an error if no staff is found
+    if (!staff) {
+      throw new NotFoundException(`Staff with ID ${id} not found.`);
+    }
+
+    // Transform the entity to the DTO
+    return plainToInstance(StaffResponseDto, staff, {
+      excludeExtraneousValues: true, // Only include explicitly exposed fields
+    });
   }
 
-  update(id: number, updatePatientDto: UpdatePatientDto) {
-    return `This action updates a #${id} patient`;
+  async update(id: number, updatePatientDto: UpdatePatientDto) {
+    const staff = await this.patientRepository.findOneBy({ id });
+    if (!staff) {
+      throw new NotFoundException();
+    }
+
+    const updatedStaff = await this.patientRepository.merge(
+      staff,
+      updatePatientDto,
+    );
+    const updatedData = await this.patientRepository.save(updatedStaff);
+
+    return plainToInstance(PatientDto, updatedData, {
+      excludeExtraneousValues: true, // Only include explicitly exposed fields
+    });
   }
 
   async remove(id: number): Promise<void> {

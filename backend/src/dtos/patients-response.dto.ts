@@ -1,7 +1,7 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { UserResponseDto } from 'src/dtos/response-user.dto';
 
-export class StaffDto {
+export class PatientDto {
   @Expose()
   id: number;
 
@@ -34,7 +34,7 @@ export class StaffDto {
   updated_at: string;
 }
 
-export class PatientsResponseDto extends StaffDto {
+export class PatientsResponseDto extends PatientDto {
   @Expose()
   @Type(() => UserResponseDto) // Maps the nested user object
   user: UserResponseDto;
