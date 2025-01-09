@@ -23,12 +23,6 @@ export class StaffDto {
   @Expose()
   @Type(() => UserResponseDto) // Maps the nested user object
   user: UserResponseDto;
-
-  @Expose()
-  created_at: string;
-
-  @Exclude()
-  updated_at: string;
 }
 
 export class StaffResponseDto extends StaffDto {

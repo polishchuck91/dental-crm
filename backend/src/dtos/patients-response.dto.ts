@@ -18,7 +18,7 @@ export class PatientDto {
   contact_number: string;
 
   @Expose()
-  date_of_birth: string;
+  date_of_birth: Date;
 
   @Expose()
   address: string;
@@ -28,10 +28,10 @@ export class PatientDto {
   user: UserResponseDto;
 
   @Expose()
-  created_at: string;
+  created_at: Date;
 
   @Exclude()
-  updated_at: string;
+  updated_at: Date;
 }
 
 export class PatientsResponseDto extends PatientDto {
@@ -40,8 +40,8 @@ export class PatientsResponseDto extends PatientDto {
   user: UserResponseDto;
 
   @Expose()
-  created_at: string;
+  created_at: Date;
 
   @Exclude() // Excluded for API response
-  updated_at: string;
+  updated_at: Date;
 }
