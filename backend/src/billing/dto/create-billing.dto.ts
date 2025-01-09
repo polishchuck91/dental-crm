@@ -4,22 +4,20 @@ import {
   IsEnum,
   IsOptional,
   IsDateString,
+  IsUUID,
 } from 'class-validator';
 import { PaymentStatus } from '../../enums/payment-status.enum';
 
 export class CreateBillingDto {
   @IsNotEmpty()
-  patient_id: number;
+  @IsUUID('4', { message: 'The id must be a valid UUID.' })
+  appointment_id: string;
 
-  @IsNotEmpty()
-  appointment_id: number;
-
-  @IsDecimal()
-  total_amount: number;
-
-  @IsDecimal()
   @IsOptional()
-  amount_paid?: number;
+  description?: string;
+
+  @IsDecimal({ decimal_digits: '2' })
+  total_amount: number;
 
   @IsEnum(PaymentStatus)
   @IsOptional()
