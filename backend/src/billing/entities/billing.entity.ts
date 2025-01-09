@@ -6,8 +6,8 @@ import { TimestampsEntity } from 'src/entities/timestamps.entity';
 
 @Entity('billing')
 export class Billing extends TimestampsEntity {
-  @PrimaryGeneratedColumn()
-  bill_id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: number;
 
   @ManyToOne(() => Patient, (patient) => patient.id)
   patient: Patient;
@@ -26,7 +26,7 @@ export class Billing extends TimestampsEntity {
     enum: PaymentStatus,
     default: PaymentStatus.Pending,
   })
-  payment_status: string;
+  status: string;
 
   @Column({ nullable: true, type: 'datetime' })
   payment_date: Date;

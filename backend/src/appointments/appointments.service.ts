@@ -96,7 +96,7 @@ export class AppointmentsService {
     };
   }
 
-  async findOne(id: number): Promise<AppointmentResposneDto> {
+  async findOne(id: string): Promise<AppointmentResposneDto> {
     const appointment = await this.appointmentService
       .createQueryBuilder('appointments')
       .where('appointments.id = :id', { id })
@@ -113,7 +113,7 @@ export class AppointmentsService {
     });
   }
 
-  async update(id: number, updateAppointmentDto: UpdateAppointmentDto) {
+  async update(id: string, updateAppointmentDto: UpdateAppointmentDto) {
     const appointment = await this.appointmentService
       .createQueryBuilder('appointments')
       .leftJoinAndSelect('appointments.staff', 'staff')
@@ -137,7 +137,7 @@ export class AppointmentsService {
     });
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     const appointment = await this.appointmentService.findOneBy({ id });
 
     if (!appointment) {
