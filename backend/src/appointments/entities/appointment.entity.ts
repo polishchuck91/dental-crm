@@ -9,10 +9,14 @@ export class Appointment extends TimestampsEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Patient, (patient) => patient.id)
+  @ManyToOne(() => Patient, (patient) => patient.id, {
+    onDelete: 'CASCADE',
+  })
   patient: Patient;
 
-  @ManyToOne(() => Staff, (staff) => staff.id)
+  @ManyToOne(() => Staff, (staff) => staff.id, {
+    onDelete: 'SET NULL',
+  })
   staff: Staff;
 
   @Column({ type: 'datetime' })
