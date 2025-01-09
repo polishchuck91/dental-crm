@@ -26,19 +26,9 @@ export class PatientDto {
   @Expose()
   @Type(() => UserResponseDto) // Maps the nested user object
   user: UserResponseDto;
-
-  @Expose()
-  created_at: Date;
-
-  @Exclude()
-  updated_at: Date;
 }
 
 export class PatientsResponseDto extends PatientDto {
-  @Expose()
-  @Type(() => UserResponseDto) // Maps the nested user object
-  user: UserResponseDto;
-
   @Expose()
   created_at: Date;
 

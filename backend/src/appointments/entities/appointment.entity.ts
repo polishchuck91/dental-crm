@@ -28,7 +28,4 @@ export class Appointment extends TimestampsEntity {
     default: AppointmentStatus.Scheduled,
   })
   status: string;
-
-  @Column({ nullable: true })
-  notes: string;
 }
