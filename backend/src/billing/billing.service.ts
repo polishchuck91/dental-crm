@@ -5,6 +5,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Billing } from './entities/billing.entity';
 import { Appointment } from 'src/appointments/entities/appointment.entity';
+import { PaginationDto } from 'src/dtos/pagination-dto';
+import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
+import { BillingResposneDto } from 'src/dtos/billing-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class BillingService {
@@ -50,8 +54,29 @@ export class BillingService {
     return savedBill;
   }
 
-  findAll() {
-    return `This action returns all billing`;
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<BillingResposneDto>> {
+    const { page, limit } = paginationDto;
+    const billsQuery = await this.billingRepository
+      .createQueryBuilder('billings')
+      .leftJoinAndSelect('billings.appointment', 'appointment')
+      .leftJoinAndSelect('appointment.patient', 'patient')
+      .leftJoinAndSelect('patient.user', 'user')
+      .leftJoinAndSelect('appointment.staff', 'staff');
+
+    const paginatedResult = await paginate(billsQuery, page, limit);
+
+    const transformeredData = plainToInstance(
+      BillingResposneDto,
+      paginatedResult.data,
+      { excludeExtraneousValues: true },
+    );
+
+    return {
+      ...paginatedResult,
+      data: transformeredData,
+    };
   }
 
   findOne(id: number) {
