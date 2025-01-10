@@ -65,7 +65,6 @@ export class AuthService {
   async refresh(token: string) {
     // Check if the token is blacklisted
 
-    console.log('token', token);
     const isBlacklisted = await this.blacklistService.isTokenBlacklisted(token);
     if (isBlacklisted) {
       throw new UnauthorizedException('Invalid or blacklisted token');
@@ -75,8 +74,6 @@ export class AuthService {
     try {
       // Verify the refresh token
       payload = await this.tokenService.verifyRefreshToken(token);
-
-      console.log('payload: ', payload);
     } catch (error) {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }

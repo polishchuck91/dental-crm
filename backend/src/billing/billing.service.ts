@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBillingDto } from './dto/create-billing.dto';
 import { UpdateBillingDto } from './dto/update-billing.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,7 +23,9 @@ export class BillingService {
     private readonly billingRepository: Repository<Billing>,
   ) {}
 
-  async create(createBillingDto: CreateBillingDto) {
+  async create(
+    createBillingDto: CreateBillingDto,
+  ): Promise<BillingResposneDto> {
     const {
       appointment_id,
       total_amount,
@@ -51,19 +57,39 @@ export class BillingService {
 
     // Save the Billing record to the database
     const savedBill = await this.billingRepository.save(bill);
-    return savedBill;
+    return plainToInstance(BillingResposneDto, savedBill, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginatedResult<BillingResposneDto>> {
     const { page, limit } = paginationDto;
+
     const billsQuery = await this.billingRepository
       .createQueryBuilder('billings')
-      .leftJoinAndSelect('billings.appointment', 'appointment')
-      .leftJoinAndSelect('appointment.patient', 'patient')
-      .leftJoinAndSelect('patient.user', 'user')
-      .leftJoinAndSelect('appointment.staff', 'staff');
+      .select([
+        'billings.id',
+        'billings.total_amount',
+        'billings.description',
+        'billings.payment_status',
+        'billings.payment_date',
+      ])
+      .addSelect(['appointment.id', 'appointment.appointment_date'])
+      .addSelect([
+        'patient.first_name',
+        'patient.last_name',
+        'patient.gender',
+        'patient.contact_number',
+        'patient.date_of_birth',
+      ])
+      .addSelect(['user.email'])
+      .addSelect(['staff.first_name', 'staff.last_name'])
+      .leftJoin('billings.appointment', 'appointment')
+      .leftJoin('appointment.patient', 'patient')
+      .leftJoin('patient.user', 'user')
+      .leftJoin('appointment.staff', 'staff');
 
     const paginatedResult = await paginate(billsQuery, page, limit);
 
@@ -87,7 +113,13 @@ export class BillingService {
     return `This action updates a #${id} billing`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} billing`;
+  async remove(id: string) {
+    const bill = await this.billingRepository.findOneBy({ id });
+
+    if (!bill) {
+      throw new NotFoundException();
+    }
+
+    await this.billingRepository.delete(bill.id);
   }
 }
