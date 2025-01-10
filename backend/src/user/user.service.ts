@@ -119,8 +119,6 @@ export class UserService {
         excludeExtraneousValues: true,
       });
 
-      console.log(data);
-
       return data;
     } catch (error) {
       throw new Error(`Failed to retrieve user: ${error.message}`);

@@ -29,7 +29,7 @@ export class BillingDto {
   updated_at: Date;
 }
 
-export class BillingResposneDto extends BillingDto {
+export class BillingResponseDto extends BillingDto {
   @Expose()
   @Type(() => AppointmentResposneDto)
   appointment: AppointmentResposneDto;

@@ -3,16 +3,17 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateBillingDto } from './dto/create-billing.dto';
-import { UpdateBillingDto } from './dto/update-billing.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { plainToInstance } from 'class-transformer';
+
+import { CreateBillingDto } from './dto/create-billing.dto';
+import { UpdateBillingDto } from './dto/update-billing.dto';
+import { PaginationDto } from 'src/dtos/pagination-dto';
+import { BillingResponseDto } from 'src/dtos/billing-response.dto';
 import { Billing } from './entities/billing.entity';
 import { Appointment } from 'src/appointments/entities/appointment.entity';
-import { PaginationDto } from 'src/dtos/pagination-dto';
 import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
-import { BillingResposneDto } from 'src/dtos/billing-response.dto';
-import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class BillingService {
@@ -23,9 +24,12 @@ export class BillingService {
     private readonly billingRepository: Repository<Billing>,
   ) {}
 
+  /**
+   * Create a new billing record.
+   */
   async create(
     createBillingDto: CreateBillingDto,
-  ): Promise<BillingResposneDto> {
+  ): Promise<BillingResponseDto> {
     const {
       appointment_id,
       total_amount,
@@ -34,37 +38,39 @@ export class BillingService {
       payment_status,
     } = createBillingDto;
 
-    // Find the associated appointment by ID
+    // Find the associated appointment
     const appointment = await this.appointmentRepository.findOne({
       where: { id: appointment_id },
     });
 
-    // Handle the case where the appointment doesn't exist
     if (!appointment) {
       throw new BadRequestException(
         `Appointment with ID ${appointment_id} not found.`,
       );
     }
 
-    // Prepare the Billing entity, including the appointment
-    const bill = this.billingRepository.create({
+    // Create and save the billing record
+    const billingRecord = this.billingRepository.create({
       total_amount,
       description,
       payment_date,
-      payment_status, // Default to Pending if no status is provided
-      appointment: appointment,
+      payment_status,
+      appointment,
     });
 
-    // Save the Billing record to the database
-    const savedBill = await this.billingRepository.save(bill);
-    return plainToInstance(BillingResposneDto, savedBill, {
+    const savedBilling = await this.billingRepository.save(billingRecord);
+
+    return plainToInstance(BillingResponseDto, savedBilling, {
       excludeExtraneousValues: true,
     });
   }
 
+  /**
+   * Retrieve all billing records with pagination.
+   */
   async findAll(
     paginationDto: PaginationDto,
-  ): Promise<PaginatedResult<BillingResposneDto>> {
+  ): Promise<PaginatedResult<BillingResponseDto>> {
     const { page, limit } = paginationDto;
 
     const billsQuery = await this.billingRepository
@@ -94,7 +100,7 @@ export class BillingService {
     const paginatedResult = await paginate(billsQuery, page, limit);
 
     const transformeredData = plainToInstance(
-      BillingResposneDto,
+      BillingResponseDto,
       paginatedResult.data,
       { excludeExtraneousValues: true },
     );
@@ -105,21 +111,83 @@ export class BillingService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} billing`;
-  }
+  /**
+   * Retrieve a single billing record by ID.
+   */
+  async findOne(id: string): Promise<BillingResponseDto> {
+    const billingRecord = await this.billingRepository
+      .createQueryBuilder('billing')
+      .where('billing.id = :id', { id })
+      .select([
+        'billing.id',
+        'billing.total_amount',
+        'billing.description',
+        'billing.payment_status',
+        'billing.payment_date',
+      ])
+      .leftJoinAndSelect('billing.appointment', 'appointment')
+      .leftJoinAndSelect('appointment.patient', 'patient')
+      .leftJoinAndSelect('patient.user', 'user')
+      .leftJoinAndSelect('appointment.staff', 'staff')
+      .addSelect(['appointment.id', 'appointment.appointment_date'])
+      .addSelect([
+        'patient.first_name',
+        'patient.last_name',
+        'patient.gender',
+        'patient.contact_number',
+        'patient.date_of_birth',
+      ])
+      .addSelect(['user.email'])
+      .addSelect(['staff.first_name', 'staff.last_name'])
+      .getOne();
 
-  update(id: number, updateBillingDto: UpdateBillingDto) {
-    return `This action updates a #${id} billing`;
-  }
-
-  async remove(id: string) {
-    const bill = await this.billingRepository.findOneBy({ id });
-
-    if (!bill) {
-      throw new NotFoundException();
+    if (!billingRecord) {
+      throw new NotFoundException(`Billing record with ID ${id} not found.`);
     }
 
-    await this.billingRepository.delete(bill.id);
+    return plainToInstance(BillingResponseDto, billingRecord, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  /**
+   * Update an existing billing record.
+   */
+  async update(
+    id: string,
+    updateBillingDto: UpdateBillingDto,
+  ): Promise<BillingResponseDto> {
+    const billingRecord = await this.billingRepository.findOne({
+      where: { id },
+    });
+
+    if (!billingRecord) {
+      throw new NotFoundException(`Billing record with ID ${id} not found.`);
+    }
+
+    const updatedBilling = this.billingRepository.merge(
+      billingRecord,
+      updateBillingDto,
+    );
+    const savedBilling = await this.billingRepository.save(updatedBilling);
+
+    return plainToInstance(BillingResponseDto, savedBilling, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  /**
+   * Delete a billing record by ID.
+   */
+  async remove(id: string): Promise<void> {
+    const billingRecord = await this.billingRepository.findOne({
+      where: { id },
+    });
+
+    if (!billingRecord) {
+      throw new NotFoundException(`Billing record with ID ${id} not found.`);
+    }
+
+    await this.billingRepository.delete(id);
   }
 }
