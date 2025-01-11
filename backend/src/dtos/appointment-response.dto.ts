@@ -1,4 +1,4 @@
-import { IsString, IsDateString, IsOptional, IsEnum } from 'class-validator';
+import { IsEnum } from 'class-validator';
 import { AppointmentStatus } from 'src/enums/appointment-status.enum';
 import { PatientDto } from './patients-response.dto';
 import { Expose, Type } from 'class-transformer';

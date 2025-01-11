@@ -1,14 +1,15 @@
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsArray } from 'class-validator';
 
 export class CreatePatientTreatmentDto {
   @IsNotEmpty()
   patient_id: number;
 
+  @IsArray()
   @IsNotEmpty()
-  treatment_id: number;
+  treatment: string[]; // Singular to match entity
 
   @IsNotEmpty()
-  appointment_id: number;
+  appointment_id: string;
 
   @IsOptional()
   notes?: string;
