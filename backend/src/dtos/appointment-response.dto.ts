@@ -6,7 +6,7 @@ import { StaffDto } from './staff-response.dto';
 
 export class AppointmentDto {
   @Expose()
-  id: number;
+  id: string;
 
   @Expose()
   appointment_date: Date;

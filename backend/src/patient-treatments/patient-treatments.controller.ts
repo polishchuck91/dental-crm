@@ -1,11 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { PatientTreatmentsService } from './patient-treatments.service';
 import { CreatePatientTreatmentDto } from './dto/create-patient-treatment.dto';
 import { UpdatePatientTreatmentDto } from './dto/update-patient-treatment.dto';
+import { PaginationDto } from 'src/dtos/pagination-dto';
 
 @Controller('patient-treatments')
 export class PatientTreatmentsController {
-  constructor(private readonly patientTreatmentsService: PatientTreatmentsService) {}
+  constructor(
+    private readonly patientTreatmentsService: PatientTreatmentsService,
+  ) {}
 
   @Post()
   create(@Body() createPatientTreatmentDto: CreatePatientTreatmentDto) {
@@ -13,8 +25,8 @@ export class PatientTreatmentsController {
   }
 
   @Get()
-  findAll() {
-    return this.patientTreatmentsService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.patientTreatmentsService.findAll(paginationDto);
   }
 
   @Get(':id')
@@ -23,7 +35,10 @@ export class PatientTreatmentsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePatientTreatmentDto: UpdatePatientTreatmentDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updatePatientTreatmentDto: UpdatePatientTreatmentDto,
+  ) {
     return this.patientTreatmentsService.update(+id, updatePatientTreatmentDto);
   }
 

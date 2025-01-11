@@ -6,6 +6,10 @@ import { PatientTreatment } from './entities/patient-treatment.entity';
 import { Repository } from 'typeorm';
 import { Patient } from 'src/patients/entities/patient.entity';
 import { Appointment } from 'src/appointments/entities/appointment.entity';
+import { PaginationDto } from 'src/dtos/pagination-dto';
+import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
+import { PatientTreatmentResponseDto } from 'src/dtos/patient-treatment-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class PatientTreatmentsService {
@@ -48,28 +52,69 @@ export class PatientTreatmentsService {
     return await this.patientTreatmentRepository.save(newTreatment);
   }
 
-  async findAll(): Promise<PatientTreatment[]> {
-    return await this.patientTreatmentRepository.find({
-      relations: ['patient', 'appointment'],
-    });
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<PatientTreatmentResponseDto>> {
+    const { page, limit } = paginationDto;
+
+    const patientTreatmentsQuery = await this.patientTreatmentRepository
+      .createQueryBuilder('patientTreatments')
+      .leftJoin('patientTreatments.patient', 'patient')
+      .leftJoin('patientTreatments.appointment', 'appointment')
+      .leftJoin('appointment.staff', 'staff') // Join Staff via Appointment
+      .select([
+        'patientTreatments.id',
+        'patientTreatments.treatment',
+        'patientTreatments.notes',
+        'patient.first_name',
+        'patient.last_name',
+        'patient.gender',
+        'patient.contact_number',
+        'patient.date_of_birth',
+        'appointment.id',
+        'appointment.appointment_date',
+        'staff.first_name',
+        'staff.last_name',
+      ]);
+
+    const paginatedResult = await paginate(patientTreatmentsQuery, page, limit);
+
+    const transformeredData = plainToInstance(
+      PatientTreatmentResponseDto,
+      paginatedResult.data,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    return {
+      ...paginatedResult,
+      data: transformeredData,
+    };
   }
 
-  async findOne(id: number): Promise<PatientTreatment> {
-    const treatment = await this.patientTreatmentRepository.findOne({
-      where: { id },
-      relations: ['patient', 'appointment'],
-    });
+  async findOne(id: number): Promise<PatientTreatmentResponseDto> {
+    const treatment = await this.patientTreatmentRepository
+      .createQueryBuilder('patientTreatment')
+      .where('patientTreatment.id = :id', { id })
+      .leftJoinAndSelect('patientTreatment.patient', 'patient')
+      .leftJoinAndSelect('patientTreatment.appointment', 'appointment')
+      .leftJoinAndSelect('appointment.staff', 'staff') // Join Staff via Appointment
+      .getOne();
+
     if (!treatment) {
       throw new NotFoundException(`PatientTreatment with ID ${id} not found`);
     }
-    return treatment;
+    return plainToInstance(PatientTreatmentResponseDto, treatment, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async update(
     id: number,
     updatePatientTreatmentDto: UpdatePatientTreatmentDto,
-  ): Promise<PatientTreatment> {
-    const treatment = await this.findOne(id);
+  ) {
+    const treatment = await this.patientTreatmentRepository.findOneBy({ id });
 
     if (updatePatientTreatmentDto.patient_id) {
       const patient = await this.patientRepository.findOne({
@@ -82,7 +127,6 @@ export class PatientTreatmentsService {
       }
       treatment.patient = patient;
     }
-
     if (updatePatientTreatmentDto.appointment_id) {
       const appointment = await this.appointmentRepository.findOne({
         where: { id: updatePatientTreatmentDto.appointment_id },
@@ -94,13 +138,12 @@ export class PatientTreatmentsService {
       }
       treatment.appointment = appointment;
     }
-
     treatment.notes = updatePatientTreatmentDto.notes ?? treatment.notes;
     return await this.patientTreatmentRepository.save(treatment);
   }
 
   async remove(id: number): Promise<void> {
-    const treatment = await this.findOne(id);
+    const treatment = await this.patientTreatmentRepository.findOneBy({ id });
     await this.patientTreatmentRepository.remove(treatment);
   }
 }
