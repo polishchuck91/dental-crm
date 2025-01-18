@@ -10,10 +10,14 @@ import { login } from "../../api/endpoints/auth";
 import { LocalStorage } from "../../constants/storage";
 import { Role } from "../../constants/roles";
 import { useNavigate } from "react-router";
+import { setAuthorizationHeader } from "../../api/axiosInstance";
+import useAuthStore from "../../store/useAuthStore";
 
 interface FormData extends UserCredentials {}
 
 const LoginForm: FC = (): JSX.Element => {
+  const { userLogin } = useAuthStore();
+
   const [loading, setLoading] = useState(false);
   const [isRemember, setIsRemember] = useState(false);
 
@@ -46,12 +50,9 @@ const LoginForm: FC = (): JSX.Element => {
     setLoading(true);
 
     try {
-      const response = await login(data);
+      const response = await userLogin(data);
 
-      if (isRemember) {
-        localStorage.setItem(LocalStorage.accessToken, response.accessToken);
-        localStorage.setItem(LocalStorage.refreshToken, response.refreshToken);
-      }
+      if (!response) return;
 
       if (response.role === Role.Patient) {
         navigate("/patient", { replace: true });

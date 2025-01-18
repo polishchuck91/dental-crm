@@ -1,7 +1,7 @@
 import { FC } from "react";
 
 const CRM: FC = () => {
-  return <h1>CRM HOME</h1>;
+  return <div className="container"></div>;
 };
 
 export default CRM;
