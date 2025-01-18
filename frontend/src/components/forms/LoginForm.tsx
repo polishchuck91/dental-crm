@@ -8,6 +8,8 @@ import PasswordField from "./fields/PasswordField";
 import { UserCredentials } from "../../types/Auth";
 import { login } from "../../api/endpoints/auth";
 import { LocalStorage } from "../../constants/storage";
+import { Role } from "../../constants/roles";
+import { useNavigate } from "react-router";
 
 interface FormData extends UserCredentials {}
 
@@ -15,6 +17,7 @@ const LoginForm: FC = (): JSX.Element => {
   const [loading, setLoading] = useState(false);
   const [isRemember, setIsRemember] = useState(false);
 
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -48,6 +51,12 @@ const LoginForm: FC = (): JSX.Element => {
       if (isRemember) {
         localStorage.setItem(LocalStorage.accessToken, response.accessToken);
         localStorage.setItem(LocalStorage.refreshToken, response.refreshToken);
+      }
+
+      if (response.role === Role.Patient) {
+        navigate("/patient", { replace: true });
+      } else {
+        navigate("/crm", { replace: true });
       }
 
       resetForm();
