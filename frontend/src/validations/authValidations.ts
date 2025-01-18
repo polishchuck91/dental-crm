@@ -9,14 +9,11 @@ export const passwordValidationSchema = yup
   .matches(/(?=.*[a-z])/, "Пароль має містити щонайменше одну малу літеру")
   .matches(/(?=.*[0-9])/, "Пароль має містити щонайменше одну цифру")
   .matches(
-    /(?=.*[!@#$%^&*])/,
-    "Пароль має містити щонайменше один спеціальний символ (!@#$%^&*)",
+    /(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
+    "Пароль має містити щонайменше один спеціальний символ (!@#$%^&*()_+-=[]{};':\"|,.<>/?)",
   );
 
 export const loginValidationSchema = yup.object({
-  email: yup
-    .string()
-    .email("Неправильна електронна адреса")
-    .required("Це поле обов'язкове"),
+  userIdentifier: yup.string().required("Це поле обов'язкове"),
   password: passwordValidationSchema,
 });

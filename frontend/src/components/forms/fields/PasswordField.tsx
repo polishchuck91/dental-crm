@@ -6,7 +6,7 @@ import { useInputDynamicClasses } from "../../../hooks/useInputDynamicClasses";
 
 const PasswordField = forwardRef<HTMLInputElement, TextfieldProps>(
   (
-    { errorMessage = "", label, id, placeholder = "Enter your password" },
+    { errorMessage = "", label, id, placeholder = "Вкажіть пароль", ...rest },
     ref,
   ) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +27,7 @@ const PasswordField = forwardRef<HTMLInputElement, TextfieldProps>(
             ref={ref}
             type={showPassword ? "text" : "password"}
             id={id}
+            {...rest}
             placeholder={placeholder}
             aria-invalid={isHasError}
             className={inputClasses}
