@@ -5,8 +5,10 @@ import { UserCredentials, UserSession } from "../types/Auth";
 import { login } from "../api/endpoints/auth";
 import { setAuthorizationHeader } from "../api/axiosInstance";
 import { getMySelf } from "../api/endpoints/user";
+import { User } from "../types/User";
 
 interface AuthState {
+  user: User | null;
   [LocalStorage.accessToken]: string | null;
   [LocalStorage.refreshToken]: string | null;
   loading: boolean;
@@ -18,6 +20,7 @@ interface AuthState {
 const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
+      user: null,
       [LocalStorage.accessToken]: null,
       [LocalStorage.refreshToken]: null,
       loading: false,
@@ -32,6 +35,7 @@ const useAuthStore = create<AuthState>()(
           setAuthorizationHeader(result.accessToken);
 
           set({
+            user: result.user,
             [LocalStorage.accessToken]: result.accessToken,
             [LocalStorage.refreshToken]: result.refreshToken,
           });
@@ -57,7 +61,9 @@ const useAuthStore = create<AuthState>()(
           set({ loading: true }); // Start loading
           setAuthorizationHeader(accessToken);
 
-          await getMySelf();
+          const mySelf = await getMySelf();
+
+          set({ user: mySelf });
         } catch (error) {
           console.error(error);
         } finally {

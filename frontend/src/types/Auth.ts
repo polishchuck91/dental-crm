@@ -1,4 +1,4 @@
-import { Role } from "../constants/roles";
+import { User } from "./User";
 
 export interface UserCredentials {
   userIdentifier: string;
@@ -6,9 +6,7 @@ export interface UserCredentials {
 }
 
 export interface UserSession {
-  userId: string;
-  email: string;
-  role: Role;
+  user: User;
   accessToken: string;
   refreshToken: string;
 }

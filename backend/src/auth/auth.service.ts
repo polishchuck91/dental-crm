@@ -3,6 +3,8 @@ import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { AccessTokensService } from 'src/access-tokens/access-tokens.service';
 import { TokenBlacklistService } from 'src/token-blacklist/token-blacklist.service';
+import { LoginResposneDto } from 'src/dtos/user-data-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -40,13 +42,11 @@ export class AuthService {
       this.tokenService.generateRefreshToken(user.id),
     ]);
 
-    return {
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-      accessToken,
-      refreshToken,
-    };
+    const data = { user, accessToken, refreshToken };
+
+    return plainToInstance(LoginResposneDto, data, {
+      excludeExtraneousValues: true,
+    });
   }
 
   /**
@@ -83,8 +83,6 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-
-    console.log(user);
 
     // Blacklist the used refresh token
     await this.blacklistService.addTokenToBlacklist(token);

@@ -15,7 +15,7 @@ import { PaginationDto } from 'src/dtos/pagination-dto';
 import { paginate, PaginatedResult } from 'src/common/utils/pagination.util';
 import { User } from './entities/user.entity';
 import { Role } from 'src/enums/role.enum';
-import { MySelfDtoResponse } from 'src/dtos/my-self-response.dto';
+import { UserDataResponseDto } from 'src/dtos/user-data-response.dto';
 
 @Injectable()
 export class UserService {
@@ -81,7 +81,11 @@ export class UserService {
 
   // Reusable method for finding a user by either email or username
   private async findUserByField(field: string, value: string): Promise<User> {
-    const user = await this.userRepository.findOneBy({ [field]: value });
+    const user = await this.userRepository.findOne({
+      where: { [field]: value },
+      relations: ['staff', 'patient'], // Include relations if provided
+    });
+
     if (!user) {
       throw new NotFoundException(`${field} not found`);
     }
@@ -97,7 +101,7 @@ export class UserService {
     return this.findUserByField('username', username);
   }
 
-  async getMySelf(request: Request) {
+  async getMySelf(request: Request): Promise<UserDataResponseDto> {
     const currentUser: { id: string; role: Role } = request['user'];
 
     const mySelfQuery = this.userRepository.createQueryBuilder('user');
@@ -116,7 +120,7 @@ export class UserService {
         throw new NotFoundException('User not found');
       }
 
-      const data = plainToInstance(MySelfDtoResponse, mySelf, {
+      const data = plainToInstance(UserDataResponseDto, mySelf, {
         excludeExtraneousValues: true,
       });
 
