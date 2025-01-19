@@ -6,11 +6,8 @@ import { twMerge } from "tailwind-merge";
 import Textfield from "./fields/Textfield";
 import PasswordField from "./fields/PasswordField";
 import { UserCredentials } from "../../types/Auth";
-import { login } from "../../api/endpoints/auth";
-import { LocalStorage } from "../../constants/storage";
 import { Role } from "../../constants/roles";
 import { useNavigate } from "react-router";
-import { setAuthorizationHeader } from "../../api/axiosInstance";
 import useAuthStore from "../../store/useAuthStore";
 
 interface FormData extends UserCredentials {}
@@ -50,11 +47,11 @@ const LoginForm: FC = (): JSX.Element => {
     setLoading(true);
 
     try {
-      const response = await userLogin(data);
+      const response = await userLogin(data, isRemember);
 
       if (!response) return;
 
-      if (response.role === Role.Patient) {
+      if (response.user.role === Role.Patient) {
         navigate("/patient", { replace: true });
       } else {
         navigate("/crm", { replace: true });

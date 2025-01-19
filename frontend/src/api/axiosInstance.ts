@@ -12,4 +12,8 @@ export const setAuthorizationHeader = (token: string) => {
   axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 };
 
+export const deleteAuthorizationHeader = () => {
+  delete axiosInstance.defaults.headers.common["Authorization"];
+};
+
 export default axiosInstance;

@@ -3,7 +3,10 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { LocalStorage } from "../constants/storage";
 import { UserCredentials, UserSession } from "../types/Auth";
 import { login } from "../api/endpoints/auth";
-import { setAuthorizationHeader } from "../api/axiosInstance";
+import {
+  deleteAuthorizationHeader,
+  setAuthorizationHeader,
+} from "../api/axiosInstance";
 import { getMySelf } from "../api/endpoints/user";
 import { User } from "../types/User";
 
@@ -12,9 +15,13 @@ interface AuthState {
   [LocalStorage.accessToken]: string | null;
   [LocalStorage.refreshToken]: string | null;
   loading: boolean;
-  userLogin: (data: UserCredentials) => Promise<UserSession | null>;
+  userLogin: (
+    data: UserCredentials,
+    isRemember: boolean,
+  ) => Promise<UserSession | null>;
   fetchMySelf: () => Promise<void>;
   setLoading: (loading: boolean) => void;
+  clearAuth: () => void;
 }
 
 const useAuthStore = create<AuthState>()(
@@ -25,59 +32,85 @@ const useAuthStore = create<AuthState>()(
       [LocalStorage.refreshToken]: null,
       loading: false,
 
+      // Set loading state
       setLoading: (loading: boolean) => set({ loading }),
 
-      userLogin: async (data: UserCredentials) => {
+      // Clear authentication state and remove authorization header
+      clearAuth: () => {
+        set({
+          user: null,
+          [LocalStorage.accessToken]: null,
+          [LocalStorage.refreshToken]: null,
+        });
+        deleteAuthorizationHeader();
+      },
+
+      // Handle user login
+      userLogin: async (data: UserCredentials, isRemember: boolean) => {
+        set({ loading: true });
         try {
-          set({ loading: true }); // Start loading
           const result = await login(data);
 
+          // Update authorization header with the access token
           setAuthorizationHeader(result.accessToken);
 
+          // Set user and tokens in the store
           set({
             user: result.user,
-            [LocalStorage.accessToken]: result.accessToken,
-            [LocalStorage.refreshToken]: result.refreshToken,
+            ...(isRemember && {
+              [LocalStorage.accessToken]: result.accessToken,
+              [LocalStorage.refreshToken]: result.refreshToken,
+            }),
           });
 
           return result;
         } catch (error) {
-          console.error(error);
+          console.error("Login failed:", error);
+          get().clearAuth();
           return null;
         } finally {
-          set({ loading: false }); // End loading
+          set({ loading: false });
         }
       },
 
+      // Fetch current user details
       fetchMySelf: async () => {
-        const {
-          [LocalStorage.accessToken]: accessToken,
-          [LocalStorage.refreshToken]: refreshToken,
-        } = get();
+        const { [LocalStorage.accessToken]: accessToken } = get();
 
-        if (!accessToken || !refreshToken) return;
+        if (!accessToken) {
+          console.warn("No access token found. Cannot fetch user details.");
+          return;
+        }
 
+        set({ loading: true });
         try {
-          set({ loading: true }); // Start loading
+          // Set the authorization header before making the request
           setAuthorizationHeader(accessToken);
 
           const mySelf = await getMySelf();
 
           set({ user: mySelf });
         } catch (error) {
-          console.error(error);
+          console.error("Failed to fetch user details:", error);
+          get().clearAuth();
         } finally {
-          set({ loading: false }); // End loading
+          set({ loading: false });
         }
       },
     }),
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        [LocalStorage.accessToken]: state[LocalStorage.accessToken],
-        [LocalStorage.refreshToken]: state[LocalStorage.refreshToken],
-      }),
+      partialize: (state) => {
+        const {
+          [LocalStorage.accessToken]: accessToken,
+          [LocalStorage.refreshToken]: refreshToken,
+        } = state;
+        return {
+          [LocalStorage.accessToken]: accessToken,
+          [LocalStorage.refreshToken]: refreshToken,
+        };
+      },
     },
   ),
 );

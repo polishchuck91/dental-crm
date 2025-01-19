@@ -1,5 +1,6 @@
 import { Navigate } from "react-router";
 import { Role } from "../constants/roles";
+import useAuthStore from "../store/useAuthStore";
 
 interface ProtectedRouteProps {
   element: JSX.Element;
@@ -8,12 +9,22 @@ interface ProtectedRouteProps {
 
 // ProtectedRoute Component
 const ProtectedRoute = ({ element, requiredRoles }: ProtectedRouteProps) => {
-  const userRole = Role.Dentist;
+  const { user, loading } = useAuthStore((state) => state);
 
-  const isAllowedRoutes = requiredRoles.includes(userRole);
+  const userRole = user?.role;
+
+  const isAllowedRoutes = userRole && requiredRoles.includes(userRole);
+
+  if (loading) {
+    return <>....</>;
+  }
 
   // Check if the current path is allowed for the user's role
-  return isAllowedRoutes ? element : <Navigate to="/login" replace />;
+  return !loading && isAllowedRoutes ? (
+    element
+  ) : (
+    <Navigate to="/login" replace />
+  );
 };
 
 export default ProtectedRoute;
