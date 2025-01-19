@@ -102,10 +102,11 @@ export class UserService {
 
     const mySelfQuery = this.userRepository.createQueryBuilder('user');
 
-    if (currentUser.role !== Role.Patient) {
+    if (currentUser.role === Role.Patient) {
+      mySelfQuery.leftJoinAndSelect('user.patient', 'patient');
+    } else {
       mySelfQuery.leftJoinAndSelect('user.staff', 'staff');
     }
-
     try {
       const mySelf = await mySelfQuery
         .where('user.id = :userId', { userId: currentUser.id })

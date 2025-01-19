@@ -32,9 +32,9 @@ export class Patient extends TimestampsEntity {
   @Column({ nullable: true })
   address: string;
 
-  @OneToOne(() => User, (user) => user.staff, {
-    onDelete: 'CASCADE', // Ensures the User is deleted when Staff is deleted
+  @OneToOne(() => User, (user) => user.patient, {
+    onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'userId' }) // Specifies that Staff is the owning side
+  @JoinColumn({ name: 'user_id' })
   user: User;
 }

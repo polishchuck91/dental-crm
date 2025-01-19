@@ -39,10 +39,10 @@ export class User extends TimestampsEntity {
   staff: Staff;
 
   @OneToOne(() => Patient, (patient) => patient.user, {
-    cascade: true, // Cascade delete to Staff
-    onDelete: 'CASCADE', // Ensure database-level cascade
+    cascade: true,
+    onDelete: 'CASCADE',
   })
-  patient: Staff;
+  patient: Patient;
 
   @BeforeInsert()
   async setPasswordHash() {
