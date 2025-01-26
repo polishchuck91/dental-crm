@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 
 // ProtectedRoute Component
 const ProtectedRoute = ({ element, requiredRoles }: ProtectedRouteProps) => {
-  const { user, loading } = useAuthStore((state) => state);
+  const { user, loading, accessToken } = useAuthStore((state) => state);
 
   const userRole = user?.role;
 
@@ -20,7 +20,7 @@ const ProtectedRoute = ({ element, requiredRoles }: ProtectedRouteProps) => {
   }
 
   // Check if the current path is allowed for the user's role
-  return !loading && isAllowedRoutes ? (
+  return accessToken || (!loading && isAllowedRoutes) ? (
     element
   ) : (
     <Navigate to="/login" replace />

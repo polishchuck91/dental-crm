@@ -5,8 +5,11 @@ export interface UserCredentials {
   password: string;
 }
 
-export interface UserSession {
-  user: User;
+export interface SessionTokens {
   accessToken: string;
   refreshToken: string;
+}
+
+export interface UserSession extends SessionTokens {
+  user: User;
 }
