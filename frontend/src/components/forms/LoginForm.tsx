@@ -15,7 +15,7 @@ import Logo from "../../assets/logo.webp";
 interface FormData extends UserCredentials {}
 
 const LoginForm: FC = (): JSX.Element => {
-  const { userLogin } = useAuthStore();
+  const { userLogin, isLoading } = useAuthStore();
 
   const [loading, setLoading] = useState(false);
   const [isRemember, setIsRemember] = useState(false);
@@ -62,8 +62,6 @@ const LoginForm: FC = (): JSX.Element => {
       resetForm();
     } catch (error) {
       console.error("Login error:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -115,8 +113,8 @@ const LoginForm: FC = (): JSX.Element => {
             </label>
           </div>
 
-          <button type="submit" disabled={loading} className={buttonClasses}>
-            {loading ? "Завантаження..." : "Увійти"}
+          <button type="submit" disabled={isLoading} className={buttonClasses}>
+            {isLoading ? "Завантаження..." : "Увійти"}
           </button>
         </form>
       </div>
