@@ -3,6 +3,7 @@
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}", // Ensure all your React components are included
+    "./node_modules/flowbite/**/*.js", // Include Flowbite files
   ],
   theme: {
     extend: {
@@ -45,5 +46,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [require("@tailwindcss/forms"), require("flowbite/plugin")],
 };

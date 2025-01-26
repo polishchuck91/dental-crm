@@ -10,6 +10,8 @@ import { Role } from "../../constants/roles";
 import { useNavigate } from "react-router";
 import useAuthStore from "../../store/useAuthStore";
 
+import Logo from "../../assets/logo.webp";
+
 interface FormData extends UserCredentials {}
 
 const LoginForm: FC = (): JSX.Element => {
@@ -66,11 +68,18 @@ const LoginForm: FC = (): JSX.Element => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-50">
+      <div>
+        <img
+          src={Logo}
+          alt="Dental CRM"
+          className="w-32 rounded-full shadow-lg"
+        />
+      </div>
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
         <h2 className="mb-6 text-center text-2xl text-gray-800">
           <span className="font-medium">Dental</span>
-          <span className="font-bold text-blue-500">HUB</span>
+          <span className="font-bold text-primary">HUB</span>
         </h2>
 
         <form onSubmit={handleSubmit(onSubmit)}>
