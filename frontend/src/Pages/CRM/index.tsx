@@ -7,6 +7,7 @@ const CRM: FC = () => {
   return (
     <div className="container">
       <pre>{JSON.stringify(state, null, 2)}</pre>
+      <button onClick={() => state.userLogout()}>Logout</button>
     </div>
   );
 };

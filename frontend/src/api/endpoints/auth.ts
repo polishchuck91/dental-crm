@@ -15,6 +15,8 @@ export const refresh = (refreshToken: string) => {
     .then((res) => res.data);
 };
 
-export const logout = () => {
-  return axiosInstance.post("/auth/logout");
+export const logout = (refreshToken: string) => {
+  return axiosInstance.post("/auth/logout", {
+    refreshToken,
+  });
 };

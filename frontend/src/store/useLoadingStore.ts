@@ -1,12 +1,14 @@
-import { create } from "zustand";
-
-interface LoadingState {
+// useLoadingStore.ts
+export interface LoadingState {
   isLoading: boolean;
+  setLoading: (loading: boolean) => void;
 }
 
-const useLoadingStore = create<LoadingState>((set) => ({
+const createLoadingSlice = (
+  set: (state: Partial<LoadingState>) => void,
+): LoadingState => ({
   isLoading: false,
-  setIsLoading: (loading: boolean) => set({ isLoading: loading }),
-}));
+  setLoading: (isLoading: boolean) => set({ isLoading }),
+});
 
-export default useLoadingStore;
+export default createLoadingSlice;
