@@ -9,7 +9,7 @@ import useAuthStore from "../store/useAuthStore";
 const Navbar: FC = (): JSX.Element => {
   const { userLogout } = useAuthStore();
   return (
-    <div className="w-full">
+    <div className="w-full shadow">
       <nav className="border-gray-800 bg-white dark:bg-gray-900">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
           <a href="/" className="flex flex-row items-center space-x-3">
@@ -39,8 +39,8 @@ const Navbar: FC = (): JSX.Element => {
                   className="flex items-center rounded-lg bg-secondary px-4 py-2 text-white transition-colors hover:bg-secondary-dark"
                   onClick={() => userLogout()}
                 >
-                  <ExitIcon className="mr-3" />
-                  Вийти
+                  <ExitIcon />
+                  <span className="ml-2"> Вийти</span>
                 </button>
               </li>
             </ul>

@@ -17,8 +17,9 @@ export const appLinks = {
     },
     appointments: {
       list: "/crm/appointments",
-      create: "/crm/appointments/create",
-      details: (id: string) => `/crm/appointments/${id}`,
+    },
+    treatments: {
+      list: "/crm/treatments",
     },
   },
 };
@@ -28,4 +29,5 @@ export const crmMenu = [
   { label: "Персонал", path: appLinks.crm.staff.list },
   { label: "Пацієнти", path: appLinks.crm.patients.list },
   { label: "Прийоми", path: appLinks.crm.appointments.list },
+  { label: "Послуги лікуваня", path: appLinks.crm.treatments.list },
 ];
