@@ -1,10 +1,11 @@
 import { FC } from "react";
 
 import Logo from "../assets/logo.webp";
-import { crmMenu } from "../routes";
+import { appLinks, crmMenu } from "../routes";
 import NavbarLink from "./NavbarLink";
 import ExitIcon from "./icons/ExitIcon";
 import useAuthStore from "../store/useAuthStore";
+import { NavLink } from "react-router";
 
 const Navbar: FC = (): JSX.Element => {
   const { userLogout } = useAuthStore();
@@ -12,7 +13,10 @@ const Navbar: FC = (): JSX.Element => {
     <div className="w-full shadow">
       <nav className="border-gray-800 bg-white dark:bg-gray-900">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
-          <a href="/" className="flex flex-row items-center space-x-3">
+          <NavLink
+            to={appLinks.crm.index}
+            className="flex flex-row items-center space-x-3"
+          >
             <img
               src={Logo}
               className="h-12 w-12 rounded-full"
@@ -22,9 +26,9 @@ const Navbar: FC = (): JSX.Element => {
               <span className="font-medium">Dental</span>
               <span className="font-bold text-primary">HUB</span>
             </h2>
-          </a>
+          </NavLink>
 
-          <div className="hidden w-full md:block md:w-auto" id="navbar-default">
+          <div className="block w-full md:w-auto" id="navbar-default">
             <ul className="flex flex-row items-center rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0">
               {crmMenu.map((item) => (
                 <li key={item.path}>

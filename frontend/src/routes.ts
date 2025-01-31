@@ -1,5 +1,8 @@
+import { Role } from "./constants/roles";
+
 export const appLinks = {
   crm: {
+    index: "/crm",
     users: {
       list: "/crm/users",
       create: "/crm/users/create",

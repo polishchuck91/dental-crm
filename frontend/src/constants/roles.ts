@@ -3,5 +3,4 @@ export enum Role {
   Receptionist = "receptionist",
   Dentist = "dentist",
   Patient = "patient",
-  Guest = "guest",
 }
