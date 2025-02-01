@@ -20,10 +20,11 @@ const headers: TableHeaderCell[] = [
 ];
 
 const TreatmentsTable: FC = (): JSX.Element => {
-  const { page } = useDataGrid();
+  const { page, pageSize } = useDataGrid();
 
   const { data: treatments, isLoading } = useFetch<ResponseData<Treatment>>(
-    `/treatments?page=${page}`,
+    "/treatments",
+    { page, limit: pageSize },
   );
 
   const totalPages = useMemo(
