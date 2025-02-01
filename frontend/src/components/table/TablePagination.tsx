@@ -1,3 +1,4 @@
+import { useDataGrid } from "@/hooks/useDataGrid";
 import React from "react";
 
 interface TablePaginationProps {
@@ -5,7 +6,6 @@ interface TablePaginationProps {
   totalPages: number;
   perPage: number;
   totalItems: number;
-  onPageChange: (newPage: number) => void;
 }
 
 const TablePagination: React.FC<TablePaginationProps> = ({
@@ -13,8 +13,9 @@ const TablePagination: React.FC<TablePaginationProps> = ({
   totalPages,
   perPage,
   totalItems,
-  onPageChange,
 }) => {
+  const { setPage } = useDataGrid();
+
   const startItem = (currentPage - 1) * perPage + 1;
   const endItem = Math.min(currentPage * perPage, totalItems);
 
@@ -41,7 +42,7 @@ const TablePagination: React.FC<TablePaginationProps> = ({
         <button
           className="flex h-8 items-center justify-center rounded-s bg-neutral-dark px-3 text-sm font-medium text-white hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
           aria-label="Previous Page"
-          onClick={() => onPageChange(currentPage - 1)}
+          onClick={() => setPage(currentPage - 1)}
           disabled={currentPage === 1}
         >
           <svg
@@ -64,7 +65,7 @@ const TablePagination: React.FC<TablePaginationProps> = ({
         <button
           className="flex h-8 items-center justify-center rounded-e border-0 border-s bg-neutral-dark px-3 text-sm font-medium text-white hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
           aria-label="Next Page"
-          onClick={() => onPageChange(currentPage + 1)}
+          onClick={() => setPage(currentPage + 1)}
           disabled={currentPage === totalPages}
         >
           <svg
