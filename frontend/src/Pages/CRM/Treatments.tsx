@@ -1,13 +1,21 @@
 import TableHeader from "@/components/table/TableHeader";
 import TableRow from "@/components/table/TableRow";
 import useFetch from "@/hooks/useFetch";
-import { ResponseData } from "@/types/Common";
+import { ResponseData, SortOrder, TableHeaderCell } from "@/types/Common";
 import { Treatment } from "@/types/Treatments";
 import { FC } from "react";
 
-const header = ["Послуга", "Опис", "Вартість", "Коментар"];
-
-const h = [{ key: "treatment_name", text: "", isOrder: true }];
+const headers: TableHeaderCell[] = [
+  {
+    key: "treatment_name",
+    label: "Послуга",
+    sortable: true,
+    order: SortOrder.ASC,
+  },
+  { key: "description", label: "Опис" },
+  { key: "cost", label: "Вартість", sortable: true, order: SortOrder.ASC },
+  { key: "cost_comment", label: "Коментар" },
+];
 
 const Treatments: FC = (): JSX.Element => {
   const { data: treatments } = useFetch<ResponseData<Treatment>>("/treatments");
@@ -15,7 +23,7 @@ const Treatments: FC = (): JSX.Element => {
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
       <table className="w-full text-left text-gray-700 shadow-md">
-        <TableHeader header={header} />
+        <TableHeader header={headers} />
         <tbody>
           {treatments?.data.map((treatment, index) => (
             <TableRow rowIndex={index}>

@@ -9,3 +9,15 @@ export interface Timestamp {
   created_at: string;
   updated_at: string;
 }
+
+export enum SortOrder {
+  ASC = "ASC",
+  DESC = "DESC",
+}
+
+export interface TableHeaderCell {
+  key: string;
+  label: string;
+  sortable?: boolean;
+  order?: SortOrder;
+}
