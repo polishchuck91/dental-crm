@@ -33,7 +33,7 @@ const TablePagination: React.FC<TablePaginationProps> = ({
         </label>
         <select
           id="page-size"
-          className="rounded-md border border-gray-300 bg-gray-50 px-2 py-1 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="rounded-md border border-neutral-300 bg-gray-50 px-2 py-1 text-sm text-gray-900 focus:border-neutral focus:ring-neutral"
           value={pageSize}
           onChange={(e) => setPageSize(Number(e.target.value))}
         >
