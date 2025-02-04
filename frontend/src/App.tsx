@@ -11,6 +11,10 @@ import UsersList from "./Pages/CRM/ Users/UsersList";
 
 import PatientsList from "./Pages/CRM/Patients/PatientsList";
 
+const protectedRouteProps = {
+  requiredRoles: [Role.Admin, Role.Dentist, Role.Receptionist],
+};
+
 function App() {
   return (
     <Routes>
@@ -18,12 +22,7 @@ function App() {
 
       <Route
         path="/crm"
-        element={
-          <ProtectedRoute
-            requiredRoles={[Role.Admin, Role.Dentist, Role.Receptionist]}
-            element={<CRM />}
-          />
-        }
+        element={<ProtectedRoute {...protectedRouteProps} element={<CRM />} />}
       >
         <Route path={appLinks.crm.users.list}>
           <Route index element={<UsersList />} />
