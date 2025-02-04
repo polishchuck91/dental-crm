@@ -22,7 +22,7 @@ const headers: TableHeaderCell[] = [
 ];
 
 const TreatmentsTable: FC = () => {
-  const { page, pageSize, searchQuery, setSearchQuery, setPage } =
+  const { page, pageSize, searchQuery, setSearchQuery, setPage, order } =
     useDataGrid();
   const debounceQuery = useDebounce(searchQuery, 300);
 
@@ -66,9 +66,11 @@ const TreatmentsTable: FC = () => {
         />
       </div>
 
+      <pre>{JSON.stringify(order, null, 2)}</pre>
+
       {/* Table */}
       <table className="w-full border-collapse text-left text-sm text-gray-700 dark:text-gray-300">
-        <TableHeader header={headers} />
+        <TableHeader headers={headers} />
         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
           {treatments?.data?.length ? (
             treatments.data.map((treatment, index) => (

@@ -1,12 +1,14 @@
+import useDataGridStore from "@/store/useDataGridStore";
 import { SortOrder, TableHeaderCell } from "@/types/Common";
-import { FC, useCallback } from "react";
+import { FC, useCallback, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 
 interface TableHeaderProps {
-  header: TableHeaderCell[];
+  headers: TableHeaderCell[];
 }
 
-const TableHeader: FC<TableHeaderProps> = ({ header }) => {
+const TableHeader: FC<TableHeaderProps> = ({ headers }) => {
+  const { setOrder, order } = useDataGridStore();
   const sortIcon = useCallback((direction?: SortOrder) => {
     return direction ? (
       <svg
@@ -37,16 +39,42 @@ const TableHeader: FC<TableHeaderProps> = ({ header }) => {
     );
   }, []);
 
+  const handleHeaderOnClick = (header: TableHeaderCell) => {
+    if (!header.sortable) return;
+    const newOrder = [...order];
+
+    const field = newOrder.find((o) => o.field === header.key);
+
+    if (field) {
+      field.direction =
+        field.direction === SortOrder.ASC ? SortOrder.DESC : SortOrder.ASC;
+    }
+
+    console.table(newOrder);
+  };
+
+  useEffect(() => {
+    const h = headers
+      .filter(({ sortable }) => sortable)
+      .map((header) => ({
+        field: String(header.key), // Ensure key is a string if needed
+        direction: String(header.order), // Ensure label is a string if needed
+      }));
+
+    setOrder(h);
+  }, [headers]);
+
   return (
     <thead className="text bg-neutral-dark uppercase text-neutral-100">
       <tr>
-        {header.map((header) => (
+        {headers.map((header) => (
           <th key={header.key} scope="col" className="px-6 py-3">
             <div
               className={twMerge(
                 "flex items-center",
                 header.sortable && "cursor-pointer",
               )}
+              onClick={() => handleHeaderOnClick(header)}
             >
               {header.label}
               {header.sortable && (

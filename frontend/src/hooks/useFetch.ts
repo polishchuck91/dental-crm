@@ -8,13 +8,13 @@ const fetcher = async (url: string) =>
 export function useFetch<T>(url: string, params?: Record<string, any>) {
   const hasParams = params && Object.keys(params).length > 0;
   const queryString = hasParams
-    ? `?${qs.stringify(params, { arrayFormat: "brackets" })}`
+    ? `?${qs.stringify(params, { arrayFormat: "brackets", encode: false, indices: false })}`
     : "";
 
-  const shouldFetch = hasParams; // Only fetch if params exist
+  const shouldFetch = hasParams;
 
   const { data, error, isValidating } = useSWR<T>(
-    shouldFetch ? `${url}${queryString}` : null, // Dismiss request if no params
+    shouldFetch ? `${url}${queryString}` : null,
     fetcher,
   );
 

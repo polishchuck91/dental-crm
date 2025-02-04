@@ -1,4 +1,3 @@
-// src/common/utils/pagination.util.ts
 import { SelectQueryBuilder } from 'typeorm';
 
 export interface OrderBy {
@@ -21,16 +20,26 @@ export async function paginate<T>(
   q?: string,
   orderBy?: OrderBy, // Array of fields and directions
 ): Promise<PaginatedResult<T>> {
+  // Ensure valid page and limit values
+  page = Math.max(1, page);
+  limit = Math.max(1, limit);
+
+  // Handle search functionality
   if (q && searchFields?.length) {
     const searchConditions = searchFields
-      .map((field) => `${field} LIKE :search`)
-      .join(' OR '); // Combine conditions with OR
+      .map((field) => `${query.alias}.${field} LIKE :search`)
+      .join(' OR ');
 
     query.andWhere(`(${searchConditions})`, { search: `%${q}%` });
   }
 
   query.addOrderBy(orderBy.field, orderBy.direction);
 
+  // Debugging: Log generated SQL query
+  console.log('Generated SQL Query:', query.getSql());
+  console.log('Query Parameters:', query.getQueryAndParameters());
+
+  // Execute query and retrieve paginated results
   const [data, total] = await query
     .skip((page - 1) * limit)
     .take(limit)
