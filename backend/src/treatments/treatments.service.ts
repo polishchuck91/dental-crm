@@ -44,7 +44,7 @@ export class TreatmentsService {
       limit,
       searchFields,
       q,
-      orderBy || [{ field: 'treatment_name', direction: 'ASC' }],
+      orderBy || { field: 'treatment_name', direction: 'ASC' },
     );
 
     return {

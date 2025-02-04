@@ -78,7 +78,7 @@ export class StaffService {
       return plainToInstance(StaffResponseDto, staff, {
         excludeExtraneousValues: true,
       });
-    } catch (err) {
+    } catch {
       // since we have errors let's rollback changes we made
       await queryRunner.rollbackTransaction();
       throw new BadRequestException();
@@ -121,7 +121,7 @@ export class StaffService {
       limit,
       searchFields,
       q,
-      orderBy || [{ field: 'staff.created_at', direction: 'DESC' }],
+      orderBy || { field: 'staff.created_at', direction: 'DESC' },
     );
 
     const transformedData = plainToInstance(

@@ -19,7 +19,7 @@ export async function paginate<T>(
   limit: number = 10,
   searchFields?: string[],
   q?: string,
-  orderBy?: OrderBy[], // Array of fields and directions
+  orderBy?: OrderBy, // Array of fields and directions
 ): Promise<PaginatedResult<T>> {
   if (q && searchFields?.length) {
     const searchConditions = searchFields
@@ -29,11 +29,7 @@ export async function paginate<T>(
     query.andWhere(`(${searchConditions})`, { search: `%${q}%` });
   }
 
-  if (orderBy?.length) {
-    for (const { field, direction } of orderBy) {
-      query.addOrderBy(field, direction);
-    }
-  }
+  query.addOrderBy(orderBy.field, orderBy.direction);
 
   const [data, total] = await query
     .skip((page - 1) * limit)

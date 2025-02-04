@@ -82,7 +82,7 @@ export class PatientsService {
       await queryRunner.commitTransaction();
 
       return patient;
-    } catch (err) {
+    } catch {
       // since we have errors let's rollback changes we made
       await queryRunner.rollbackTransaction();
       throw new BadRequestException();
@@ -115,7 +115,7 @@ export class PatientsService {
       limit,
       searchFields,
       q,
-      orderBy || [{ field: 'patients.created_at', direction: 'DESC' }],
+      orderBy || { field: 'patients.created_at', direction: 'DESC' },
     );
 
     const transfromData = plainToInstance(

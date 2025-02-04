@@ -79,7 +79,7 @@ export class AppointmentsService {
       limit,
       searchFields,
       q,
-      orderBy || [{ field: 'appointments.created_at', direction: 'DESC' }],
+      orderBy || { field: 'appointments.created_at', direction: 'DESC' },
     );
 
     const transformedData = plainToInstance(

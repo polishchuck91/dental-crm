@@ -58,3 +58,5 @@ mysql-data/
 # Ignore Yarn PnP
 .pnp/
 .pnp.js
+
+docker-compose.*

@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: dental-crm-backend
     ports:
-      - "5000:3000" # Maps port 3000 in the container to port 5000 on the host
+      - "3333:3000" # Maps port 3000 in the container to port 5000 on the host
     environment:
       DATABASE_HOST: mysql
       DATABASE_PORT: 3306

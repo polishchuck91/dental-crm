@@ -4,7 +4,6 @@ import {
   Min,
   IsPositive,
   IsString,
-  IsIn,
   IsArray,
   ValidateNested,
 } from 'class-validator';
@@ -41,5 +40,5 @@ export class PaginationDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => OrderByDto)
-  orderBy?: OrderByDto[]; // Array of fields and directions
+  orderBy?: OrderByDto; // Array of fields and directions
 }

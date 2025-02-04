@@ -59,7 +59,7 @@ export class UserService {
       limit,
       searchFields,
       q,
-      orderBy || [{ field: 'created_at', direction: 'DESC' }],
+      orderBy || { field: 'created_at', direction: 'DESC' },
     );
 
     return {
@@ -130,6 +130,7 @@ export class UserService {
     }
   }
 
+  // eslint-disable-next-line
   update(id: string, updateUserDto: UpdateUserDto): string {
     return `This action updates a #${id} user`;
   }
