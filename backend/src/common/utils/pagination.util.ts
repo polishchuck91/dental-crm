@@ -1,10 +1,5 @@
 import { SelectQueryBuilder } from 'typeorm';
 
-export interface OrderBy {
-  field: string;
-  direction: 'ASC' | 'DESC';
-}
-
 export interface PaginatedResult<T> {
   data: T[];
   total: number;
@@ -18,7 +13,8 @@ export async function paginate<T>(
   limit: number = 10,
   searchFields?: string[],
   q?: string,
-  orderBy?: OrderBy, // Array of fields and directions
+  field: string = 'created_at',
+  direction: 'ASC' | 'DESC' = 'ASC',
 ): Promise<PaginatedResult<T>> {
   // Ensure valid page and limit values
   page = Math.max(1, page);
@@ -27,13 +23,13 @@ export async function paginate<T>(
   // Handle search functionality
   if (q && searchFields?.length) {
     const searchConditions = searchFields
-      .map((field) => `${query.alias}.${field} LIKE :search`)
+      .map((f) => `${query.alias}.${f} LIKE :search`)
       .join(' OR ');
 
     query.andWhere(`(${searchConditions})`, { search: `%${q}%` });
   }
 
-  query.addOrderBy(orderBy.field, orderBy.direction);
+  query.addOrderBy(field, direction);
 
   // Debugging: Log generated SQL query
   console.log('Generated SQL Query:', query.getSql());

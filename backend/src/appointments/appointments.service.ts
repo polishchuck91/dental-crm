@@ -59,7 +59,7 @@ export class AppointmentsService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginatedResult<AppointmentResposneDto>> {
-    const { page, limit, q, orderBy } = paginationDto;
+    const { page, limit, q, field, direction } = paginationDto;
 
     const appointemntsQuery = await this.appointmentService
       .createQueryBuilder('appointments')
@@ -79,7 +79,8 @@ export class AppointmentsService {
       limit,
       searchFields,
       q,
-      orderBy || { field: 'appointments.created_at', direction: 'DESC' },
+      field,
+      direction,
     );
 
     const transformedData = plainToInstance(

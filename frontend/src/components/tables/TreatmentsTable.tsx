@@ -15,6 +15,7 @@ const headers: TableHeaderCell[] = [
     label: "Послуга",
     sortable: true,
     order: SortOrder.ASC,
+    isDefault: true,
   },
   { key: "description", label: "Опис" },
   { key: "cost", label: "Вартість", sortable: true, order: SortOrder.ASC },
@@ -32,6 +33,7 @@ const TreatmentsTable: FC = () => {
       page,
       limit: pageSize,
       q: debounceQuery.length > 2 ? debounceQuery : undefined,
+      ...order,
     },
   );
 
@@ -66,8 +68,6 @@ const TreatmentsTable: FC = () => {
         />
       </div>
 
-      <pre>{JSON.stringify(order, null, 2)}</pre>
-
       {/* Table */}
       <table className="w-full border-collapse text-left text-sm text-gray-700 dark:text-gray-300">
         <TableHeader headers={headers} />
@@ -88,7 +88,9 @@ const TreatmentsTable: FC = () => {
           ) : (
             <TableRow rowIndex={0}>
               <td className="px-6 py-4 text-center" colSpan={headers.length}>
-                {`Результати для "${searchQuery}" не знайдені`}
+                {"Результати для "}
+                <strong>{searchQuery}</strong>
+                {" не знайдені"}
               </td>
             </TableRow>
           )}

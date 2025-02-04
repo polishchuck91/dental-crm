@@ -91,7 +91,7 @@ export class StaffService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginatedResult<StaffResponseDto>> {
-    const { page, limit, q, orderBy } = paginationDto;
+    const { page, limit, q, field, direction } = paginationDto;
 
     const staffQuery = await this.staffRepository
       .createQueryBuilder('staff')
@@ -121,7 +121,8 @@ export class StaffService {
       limit,
       searchFields,
       q,
-      orderBy || { field: 'staff.created_at', direction: 'DESC' },
+      field,
+      direction,
     );
 
     const transformedData = plainToInstance(

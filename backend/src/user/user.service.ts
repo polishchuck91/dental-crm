@@ -47,7 +47,7 @@ export class UserService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginatedResult<UserResponseDto>> {
-    const { page, limit, q, orderBy } = paginationDto;
+    const { page, limit, q, field, direction } = paginationDto;
 
     const queryBuilder = await this.userRepository.createQueryBuilder('users');
 
@@ -59,7 +59,8 @@ export class UserService {
       limit,
       searchFields,
       q,
-      orderBy || { field: 'created_at', direction: 'DESC' },
+      field,
+      direction,
     );
 
     return {

@@ -5,12 +5,12 @@ export interface DataGridState {
   pageSize: number;
   searchQuery: string;
   totalItems: number;
-  order: Array<Record<string, string>>; // Коректний запис масиву об'єктів
+  order: Record<string, string>; // Коректний запис масиву об'єктів
   setPage: (page: number) => void;
   setPageSize: (size: number) => void;
   setSearchQuery: (query: string) => void;
   setTotalItems: (total: number) => void;
-  setOrder: (order: Array<Record<string, string>>) => void; // Метод для оновлення order
+  setOrder: (order: Record<string, any>) => void; // Метод для оновлення order
 }
 
 const useDataGridStore = create<DataGridState>((set) => ({
@@ -18,7 +18,7 @@ const useDataGridStore = create<DataGridState>((set) => ({
   pageSize: 10,
   searchQuery: "",
   totalItems: 0,
-  order: [],
+  order: {},
   setPage: (page) => set({ page }),
   setPageSize: (size) => set({ pageSize: size }),
   setSearchQuery: (query) => set({ searchQuery: query }),

@@ -30,13 +30,11 @@ export class TreatmentsService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginatedResult<TreatmentResponseDto>> {
-    const { page, limit, q, orderBy } = paginationDto;
+    const { page, limit, q, field, direction } = paginationDto;
     const queryBuilder =
       await this.treatmentRepository.createQueryBuilder('treatments');
 
     const searchFields = ['treatment_name', 'description'];
-
-    console.log(orderBy);
 
     const paginatedResult = await paginate(
       queryBuilder,
@@ -44,7 +42,8 @@ export class TreatmentsService {
       limit,
       searchFields,
       q,
-      orderBy || { field: 'treatment_name', direction: 'ASC' },
+      field,
+      direction,
     );
 
     return {

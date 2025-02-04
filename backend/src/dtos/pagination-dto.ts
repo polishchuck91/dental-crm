@@ -9,15 +9,6 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class OrderByDto {
-  @IsString()
-  field: string;
-
-  @IsString()
-  @IsOptional()
-  direction: 'ASC' | 'DESC' = 'ASC'; // Default to ASC if not specified
-}
-
 export class PaginationDto {
   @IsOptional()
   @Type(() => Number)
@@ -37,8 +28,10 @@ export class PaginationDto {
   q?: string;
 
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => OrderByDto)
-  orderBy?: OrderByDto; // Array of fields and directions
+  @IsString()
+  field: string;
+
+  @IsString()
+  @IsOptional()
+  direction: 'ASC' | 'DESC' = 'ASC'; // Default to ASC if not specified
 }

@@ -95,7 +95,7 @@ export class PatientsService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginatedResult<PatientsResponseDto>> {
-    const { page, limit, q, orderBy } = paginationDto;
+    const { page, limit, q, field, direction } = paginationDto;
 
     const patientsQuery = await this.patientRepository
       .createQueryBuilder('patients')
@@ -115,7 +115,8 @@ export class PatientsService {
       limit,
       searchFields,
       q,
-      orderBy || { field: 'patients.created_at', direction: 'DESC' },
+      field,
+      direction,
     );
 
     const transfromData = plainToInstance(

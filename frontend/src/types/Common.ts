@@ -20,4 +20,5 @@ export interface TableHeaderCell {
   label: string;
   sortable?: boolean;
   order?: SortOrder;
+  isDefault?: boolean;
 }
