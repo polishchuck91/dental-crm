@@ -18,7 +18,12 @@ const headers: TableHeaderCell[] = [
     isDefault: true,
   },
   { key: "description", label: "Опис" },
-  { key: "cost", label: "Вартість", sortable: true, order: SortOrder.ASC },
+  {
+    key: "cost",
+    label: "Вартість",
+    sortable: true,
+    order: SortOrder.ASC,
+  },
   { key: "cost_comment", label: "Коментар" },
 ];
 

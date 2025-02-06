@@ -11,17 +11,16 @@ export function useFetch<T>(url: string, params?: Record<string, any>) {
     ? `?${qs.stringify(params, { arrayFormat: "brackets", encode: false, indices: false })}`
     : "";
 
-  const shouldFetch = hasParams;
-
+  // The key will change when `params` change, triggering a re-fetch
   const { data, error, isValidating } = useSWR<T>(
-    shouldFetch ? `${url}${queryString}` : null,
+    `${url}${queryString}`,
     fetcher,
   );
 
   return {
     data,
     error,
-    isLoading: shouldFetch ? !data && !error : false,
+    isLoading: !data && !error,
     isValidating,
   };
 }

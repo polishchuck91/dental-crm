@@ -1,4 +1,4 @@
-import { FC, useCallback, useMemo } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import useDataGridStore from "@/store/useDataGridStore";
 import { SortOrder, TableHeaderCell } from "@/types/Common";
@@ -8,6 +8,11 @@ interface TableHeaderProps {
 }
 
 const TableHeader: FC<TableHeaderProps> = ({ headers }) => {
+  const [headerModel, setHeaderModel] = useState<TableHeaderCell[]>(headers);
+  const [selectedHeader, setSelectedHeader] = useState(
+    headerModel.find((header) => header.isDefault),
+  );
+
   const { setOrder } = useDataGridStore();
 
   const sortIcon = useMemo(() => {
@@ -47,47 +52,64 @@ const TableHeader: FC<TableHeaderProps> = ({ headers }) => {
     (header: TableHeaderCell) => {
       if (!header.sortable) return;
 
-      setOrder({
-        field: header.key,
-        direction:
-          header.order === SortOrder.ASC ? SortOrder.DESC : SortOrder.ASC, // Toggle order
-      });
+      const newModel = [...headerModel];
+
+      const index = newModel.findIndex((item) => item.key == header.key);
+
+      setSelectedHeader(newModel[index]);
+
+      newModel[index].order =
+        newModel[index].order === SortOrder.ASC
+          ? SortOrder.DESC
+          : SortOrder.ASC;
+
+      setHeaderModel(newModel);
     },
-    [setOrder],
+    [selectedHeader],
   );
 
+  useEffect(() => {
+    setOrder({
+      field: selectedHeader?.key,
+      direction: selectedHeader?.order,
+    });
+  }, [selectedHeader]);
+
   return (
-    <thead className="bg-neutral-dark uppercase text-neutral-100">
-      <tr>
-        {headers.map((header) => (
-          <th
-            key={header.key}
-            scope="col"
-            className={twMerge(
-              "px-6 py-3",
-              header.sortable && "cursor-pointer",
-            )}
-            onClick={() => header.sortable && handleHeaderOnClick(header)}
-            aria-sort={
-              header.order
-                ? header.order === SortOrder.ASC
-                  ? "ascending"
-                  : "descending"
-                : "none"
-            }
-          >
-            <div className="flex items-center">
-              {header.label}
-              {header.sortable && header.isDefault && (
-                <span className="ml-1">
-                  {sortIcon[header.order || SortOrder.ASC]}
-                </span>
+    <>
+      <pre>{JSON.stringify(selectedHeader, null, 2)}</pre>
+      <thead className="bg-neutral-dark uppercase text-neutral-100">
+        <tr>
+          {headerModel.map((header) => (
+            <th
+              key={header.key}
+              scope="col"
+              className={twMerge(
+                "px-6 py-3",
+                header.sortable && "cursor-pointer",
               )}
-            </div>
-          </th>
-        ))}
-      </tr>
-    </thead>
+              onClick={() => header.sortable && handleHeaderOnClick(header)}
+              aria-sort={
+                header.order
+                  ? header.order === SortOrder.ASC
+                    ? "ascending"
+                    : "descending"
+                  : "none"
+              }
+            >
+              <div className="flex items-center">
+                {header.label}
+                {header.key === selectedHeader?.key && (
+                  <span className="ml-1">
+                    {sortIcon[selectedHeader?.order || SortOrder.ASC]}
+                  </span>
+                )}
+              </div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+    </>
   );
 };
 
