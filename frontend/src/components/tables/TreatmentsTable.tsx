@@ -28,8 +28,15 @@ const headers: TableHeaderCell[] = [
 ];
 
 const TreatmentsTable: FC = () => {
-  const { page, pageSize, searchQuery, setSearchQuery, setPage, order } =
-    useDataGrid();
+  const {
+    page,
+    pageSize,
+    searchQuery,
+    setSearchQuery,
+    setPage,
+    field,
+    direction,
+  } = useDataGrid();
   const debounceQuery = useDebounce(searchQuery, 300);
 
   const { data: treatments, isLoading } = useFetch<ResponseData<Treatment>>(
@@ -38,7 +45,8 @@ const TreatmentsTable: FC = () => {
       page,
       limit: pageSize,
       q: debounceQuery.length > 2 ? debounceQuery : undefined,
-      ...order,
+      field: field || "treatment_name",
+      direction: direction || SortOrder.ASC,
     },
   );
 

@@ -1,3 +1,4 @@
+import { SortOrder } from "@/types/Common";
 import { create } from "zustand";
 
 export interface DataGridState {
@@ -5,12 +6,13 @@ export interface DataGridState {
   pageSize: number;
   searchQuery: string;
   totalItems: number;
-  order: Record<string, string>; // Коректний запис масиву об'єктів
+  field: string;
+  direction: SortOrder;
   setPage: (page: number) => void;
   setPageSize: (size: number) => void;
   setSearchQuery: (query: string) => void;
   setTotalItems: (total: number) => void;
-  setOrder: (order: Record<string, any>) => void; // Метод для оновлення order
+  setOrder: (field: string, direction: SortOrder) => void; // Метод для оновлення field і direction
 }
 
 const useDataGridStore = create<DataGridState>((set) => ({
@@ -18,12 +20,13 @@ const useDataGridStore = create<DataGridState>((set) => ({
   pageSize: 10,
   searchQuery: "",
   totalItems: 0,
-  order: {},
+  field: "", // Додано поле сортування за замовчуванням
+  direction: SortOrder.ASC, // Додано напрямок сортування за замовчуванням
   setPage: (page) => set({ page }),
   setPageSize: (size) => set({ pageSize: size }),
   setSearchQuery: (query) => set({ searchQuery: query }),
   setTotalItems: (total) => set({ totalItems: total }),
-  setOrder: (order) => set({ order }), // Функція для оновлення order
+  setOrder: (field, direction) => set({ field, direction }), // Правильне оновлення стану
 }));
 
 export default useDataGridStore;

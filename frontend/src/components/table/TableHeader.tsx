@@ -1,6 +1,5 @@
-import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import { FC, useCallback, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import useDataGridStore from "@/store/useDataGridStore";
 import { SortOrder, TableHeaderCell } from "@/types/Common";
 
 interface TableHeaderProps {
@@ -9,20 +8,19 @@ interface TableHeaderProps {
 
 const TableHeader: FC<TableHeaderProps> = ({ headers }) => {
   const [headerModel, setHeaderModel] = useState<TableHeaderCell[]>(headers);
-  const [selectedHeader, setSelectedHeader] = useState(
-    headerModel.find((header) => header.isDefault),
+
+  const [selectedModel, setSelectedModel] = useState(
+    headerModel.find((model) => model.isDefault),
   );
 
-  const { setOrder } = useDataGridStore();
-
-  const sortIcon = useMemo(() => {
-    return {
+  const sortIcon = useMemo(
+    () => ({
       [SortOrder.ASC]: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"
-          className="size-5"
+          className="h-5 w-5"
         >
           <path
             fillRule="evenodd"
@@ -36,7 +34,7 @@ const TableHeader: FC<TableHeaderProps> = ({ headers }) => {
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"
-          className="size-5"
+          className="h-5 w-5"
         >
           <path
             fillRule="evenodd"
@@ -45,71 +43,57 @@ const TableHeader: FC<TableHeaderProps> = ({ headers }) => {
           />
         </svg>
       ),
-    };
-  }, []);
-
-  const handleHeaderOnClick = useCallback(
-    (header: TableHeaderCell) => {
-      if (!header.sortable) return;
-
-      const newModel = [...headerModel];
-
-      const index = newModel.findIndex((item) => item.key == header.key);
-
-      setSelectedHeader(newModel[index]);
-
-      newModel[index].order =
-        newModel[index].order === SortOrder.ASC
-          ? SortOrder.DESC
-          : SortOrder.ASC;
-
-      setHeaderModel(newModel);
-    },
-    [selectedHeader],
+    }),
+    [],
   );
 
-  useEffect(() => {
-    setOrder({
-      field: selectedHeader?.key,
-      direction: selectedHeader?.order,
-    });
-  }, [selectedHeader]);
+  const handleHeaderOnClick = useCallback((header: TableHeaderCell) => {
+    if (!header.sortable) return;
+
+    setSelectedModel(header);
+    setHeaderModel((prevModel) =>
+      prevModel.map((model) => {
+        if (model.key === header.key) {
+          const newOrder =
+            model.order === SortOrder.ASC ? SortOrder.DESC : SortOrder.ASC;
+
+          return { ...model, order: newOrder };
+        }
+        return model;
+      }),
+    );
+  }, []);
 
   return (
-    <>
-      <pre>{JSON.stringify(selectedHeader, null, 2)}</pre>
-      <thead className="bg-neutral-dark uppercase text-neutral-100">
-        <tr>
-          {headerModel.map((header) => (
-            <th
-              key={header.key}
-              scope="col"
-              className={twMerge(
-                "px-6 py-3",
-                header.sortable && "cursor-pointer",
+    <thead className="bg-neutral-dark uppercase text-neutral-100">
+      <tr>
+        {headerModel.map((header) => (
+          <th
+            key={header.key}
+            scope="col"
+            className={twMerge(
+              "select-none px-6 py-3",
+              header.sortable && "cursor-pointer",
+            )}
+            aria-sort={
+              header.order
+                ? header.order === SortOrder.ASC
+                  ? "ascending"
+                  : "descending"
+                : "none"
+            }
+            onClick={() => handleHeaderOnClick(header)}
+          >
+            <div className="flex items-center">
+              <span>{header.label}</span>
+              {header.order && selectedModel?.key === header.key && (
+                <span className="ml-1">{sortIcon[header.order]}</span>
               )}
-              onClick={() => header.sortable && handleHeaderOnClick(header)}
-              aria-sort={
-                header.order
-                  ? header.order === SortOrder.ASC
-                    ? "ascending"
-                    : "descending"
-                  : "none"
-              }
-            >
-              <div className="flex items-center">
-                {header.label}
-                {header.key === selectedHeader?.key && (
-                  <span className="ml-1">
-                    {sortIcon[selectedHeader?.order || SortOrder.ASC]}
-                  </span>
-                )}
-              </div>
-            </th>
-          ))}
-        </tr>
-      </thead>
-    </>
+            </div>
+          </th>
+        ))}
+      </tr>
+    </thead>
   );
 };
 

@@ -1,19 +1,19 @@
 import axiosInstance from "@/api/axiosInstance";
-import useSWR from "swr";
-import qs from "qs";
+import useSwr from "swr";
 
-const fetcher = async (url: string) =>
-  axiosInstance.get(url).then((res) => res.data);
+const fetcher = async ([url, params]: [
+  string,
+  Record<string, any> | undefined,
+]) => {
+  const response = await axiosInstance.get(url, {
+    params,
+  });
+  return response.data;
+};
 
-export function useFetch<T>(url: string, params?: Record<string, any>) {
-  const hasParams = params && Object.keys(params).length > 0;
-  const queryString = hasParams
-    ? `?${qs.stringify(params, { arrayFormat: "brackets", encode: false, indices: false })}`
-    : "";
-
-  // The key will change when `params` change, triggering a re-fetch
-  const { data, error, isValidating } = useSWR<T>(
-    `${url}${queryString}`,
+function useFetch<T>(url: string, params?: Record<string, any>) {
+  const { data, error, isValidating } = useSwr<T>(
+    params ? [url, params] : null,
     fetcher,
   );
 
