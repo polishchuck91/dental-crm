@@ -50,18 +50,18 @@ const TableHeader: FC<TableHeaderProps> = ({ headers }) => {
   const handleHeaderOnClick = useCallback((header: TableHeaderCell) => {
     if (!header.sortable) return;
 
-    setSelectedModel(header);
-    setHeaderModel((prevModel) =>
-      prevModel.map((model) => {
-        if (model.key === header.key) {
-          const newOrder =
-            model.order === SortOrder.ASC ? SortOrder.DESC : SortOrder.ASC;
+    const models = [...headerModel];
 
-          return { ...model, order: newOrder };
-        }
-        return model;
-      }),
-    );
+    const headerCell = models.findIndex((model) => model.key === header.key);
+
+    models[headerCell].order =
+      models[headerCell].order === SortOrder.ASC
+        ? SortOrder.DESC
+        : SortOrder.ASC;
+
+    setSelectedModel(models[headerCell]);
+
+    setHeaderModel(models);
   }, []);
 
   return (
