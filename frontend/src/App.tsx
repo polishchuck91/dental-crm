@@ -7,7 +7,7 @@ import { Role } from "./constants/roles";
 import { appLinks } from "./routes";
 import Treatments from "./Pages/CRM/Treatments";
 import Appointments from "./Pages/CRM/Appointments";
-import UsersList from "./Pages/CRM/ Users/UsersList";
+import UsersList from "./Pages/CRM/Users/UsersList";
 
 import PatientsList from "./Pages/CRM/Patients/PatientsList";
 

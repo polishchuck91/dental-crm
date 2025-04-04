@@ -7,7 +7,7 @@ const TableSearchField: FC<TableSearchFieldProps> = forwardRef<
   TableSearchFieldProps
 >(({ className, ...props }, ref) => {
   return (
-    <div className="flex justify-end px-4 py-3">
+    <div className="flex justify-end px-4">
       <label htmlFor="table-search" className="sr-only">
         Search
       </label>

@@ -17,7 +17,7 @@ export enum SortOrder {
 
 export interface TableHeaderCell {
   key: string;
-  label: string;
+  label: string | null;
   sortable?: boolean;
   order?: SortOrder;
   isDefault?: boolean;

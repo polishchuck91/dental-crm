@@ -23,7 +23,6 @@ interface AuthState extends LoadingState {
   userLogout: () => Promise<void>;
   fetchMySelf: () => Promise<void>;
   refreshSession: () => Promise<SessionTokens | null>;
-  setLoading: (loading: boolean) => void;
   clearAuth: () => void;
 }
 
