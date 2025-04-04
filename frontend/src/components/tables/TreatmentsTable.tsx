@@ -15,6 +15,9 @@ import AddIcon from '../icons/AddIcon';
 import Table from '../table/Table';
 import TableBody from '../table/TableBody';
 import TableCell from '../table/TableCell';
+import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
+import { deleteTreatment } from '@/api/treatments';
+import { enqueueSnackbar } from 'notistack';
 
 const headers: TableHeaderCell[] = [
   {
@@ -37,6 +40,8 @@ const headers: TableHeaderCell[] = [
 
 const TreatmentsTable: FC = () => {
   const { value: openModal, toggle: toggleModal } = useBoolean();
+  const { value: openConfirmDelete, toggle: toggleConfirmDelete } =
+    useBoolean();
 
   const [selectedTreatment, setSelectedTreatment] = useState<
     Treatment | undefined
@@ -82,6 +87,32 @@ const TreatmentsTable: FC = () => {
   const handleOnEditClick = (treatment: Treatment) => {
     setSelectedTreatment(treatment);
     toggleModal();
+  };
+
+  const handleOnDeleteOpen = (treatment: Treatment) => {
+    setSelectedTreatment(treatment);
+    toggleConfirmDelete();
+  };
+
+  const handleOnDeleteClose = () => {
+    toggleConfirmDelete();
+    setSelectedTreatment(undefined);
+  };
+
+  const handleOnDelete = async () => {
+    if (!selectedTreatment?.id) return;
+
+    try {
+      await deleteTreatment(selectedTreatment?.id);
+      toggleConfirmDelete();
+      setSelectedTreatment(undefined);
+      refetchTreatment();
+      enqueueSnackbar('Запис успішно видалено!', {
+        variant: 'success',
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleCloseModal = () => {
@@ -131,9 +162,9 @@ const TreatmentsTable: FC = () => {
                   <TableCell textDark>{`${treatment.cost} грн`}</TableCell>
 
                   <TableCell>{treatment.cost_comment || '—'}</TableCell>
-                  <TableCell>
+                  <TableCell isActions>
                     <button
-                      className={appTheme.button.circle}
+                      className={appTheme.button.secondary.circle}
                       onClick={() => handleOnEditClick(treatment)}
                     >
                       <svg
@@ -146,6 +177,26 @@ const TreatmentsTable: FC = () => {
                           fillRule="evenodd"
                           d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z"
                           clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+
+                    <button
+                      className={appTheme.button.danger.circle}
+                      onClick={() => handleOnDeleteOpen(treatment)}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="size-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5 12h14"
                         />
                       </svg>
                     </button>
@@ -178,6 +229,12 @@ const TreatmentsTable: FC = () => {
         onSuccess={() => refetchTreatment()}
         onClose={() => handleCloseModal()}
         treatment={selectedTreatment}
+      />
+
+      <ConfirmDeleteModal
+        open={openConfirmDelete}
+        onClose={() => handleOnDeleteClose()}
+        onConfirm={() => handleOnDelete()}
       />
     </div>
   );

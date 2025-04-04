@@ -6,6 +6,7 @@ interface TableCellProps {
   className?: string;
   fontMedium?: boolean;
   textDark?: boolean;
+  isActions?: boolean;
 }
 
 const TableCell: React.FC<TableCellProps> = ({
@@ -13,10 +14,12 @@ const TableCell: React.FC<TableCellProps> = ({
   className = '',
   fontMedium,
   textDark,
+  isActions,
 }) => {
   const conditionalClasses = [
     fontMedium ? 'font-medium' : '',
     textDark ? 'text-gray-900' : '',
+    isActions ? 'flex flex-row gap-1' : '',
   ].join(' ');
 
   return (

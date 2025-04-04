@@ -1,5 +1,7 @@
-const baseButton = 'flex items-center justify-center rounded-lg px-4 py-2 transition-colors focus:outline-none';
-const baseCircleButton = 'flex items-center justify-center rounded-full w-8 h-8 transition-colors focus:outline-none';
+const baseButton =
+  'flex items-center justify-center rounded-lg px-4 py-2 transition-colors focus:outline-none';
+const baseCircleButton =
+  'flex items-center justify-center rounded-full w-8 h-8 transition-colors focus:outline-none';
 const disabledClasses = 'opacity-50 cursor-not-allowed pointer-events-none';
 
 const variantColors = {
@@ -45,17 +47,26 @@ const variantColors = {
   },
 };
 
-const getSolidVariant = (type: keyof typeof variantColors, disabled = false) => {
+const getSolidVariant = (
+  type: keyof typeof variantColors,
+  disabled = false
+) => {
   const color = variantColors[type];
   return `${baseButton} ${color.base} ${disabled ? disabledClasses : `${color.hover} ${color.ring}`}`;
 };
 
-const getOutlineVariant = (type: keyof typeof variantColors, disabled = false) => {
+const getOutlineVariant = (
+  type: keyof typeof variantColors,
+  disabled = false
+) => {
   const color = variantColors[type];
   return `${baseButton} border ${color.border} bg-transparent ${disabled ? disabledClasses : color.hoverOutline}`;
 };
 
-const getGhostVariant = (type: keyof typeof variantColors, disabled = false) => {
+const getGhostVariant = (
+  type: keyof typeof variantColors,
+  disabled = false
+) => {
   const color = variantColors[type];
   return `${baseButton} text-${type} bg-transparent ${disabled ? disabledClasses : color.hoverOutline}`;
 };
@@ -63,6 +74,14 @@ const getGhostVariant = (type: keyof typeof variantColors, disabled = false) => 
 const getLinkVariant = (type: keyof typeof variantColors, disabled = false) => {
   const color = variantColors[type];
   return `${baseButton} p-0 h-auto text-${type} bg-transparent underline ${disabled ? disabledClasses : color.hoverLink}`;
+};
+
+const getCircleVariant = (
+  type: keyof typeof variantColors,
+  disabled = false
+) => {
+  const color = variantColors[type];
+  return `${baseCircleButton} text-${type} bg-transparent ${disabled ? disabledClasses : color.hoverOutline}`;
 };
 
 const appTheme = {
@@ -73,6 +92,7 @@ const appTheme = {
       ghost: getGhostVariant('primary'),
       link: getLinkVariant('primary'),
       disabled: getSolidVariant('primary', true),
+      circle: getCircleVariant('primary'),
     },
     secondary: {
       solid: getSolidVariant('secondary'),
@@ -80,6 +100,7 @@ const appTheme = {
       ghost: getGhostVariant('secondary'),
       link: getLinkVariant('secondary'),
       disabled: getSolidVariant('secondary', true),
+      circle: getCircleVariant('secondary'),
     },
     success: {
       solid: getSolidVariant('success'),
@@ -87,6 +108,7 @@ const appTheme = {
       ghost: getGhostVariant('success'),
       link: getLinkVariant('success'),
       disabled: getSolidVariant('success', true),
+      circle: getCircleVariant('success'),
     },
     danger: {
       solid: getSolidVariant('danger'),
@@ -94,6 +116,7 @@ const appTheme = {
       ghost: getGhostVariant('danger'),
       link: getLinkVariant('danger'),
       disabled: getSolidVariant('danger', true),
+      circle: getCircleVariant('danger'),
     },
     info: {
       solid: getSolidVariant('info'),
@@ -101,8 +124,8 @@ const appTheme = {
       ghost: getGhostVariant('info'),
       link: getLinkVariant('info'),
       disabled: getSolidVariant('info', true),
+      circle: getCircleVariant('info'),
     },
-    circle: `${baseCircleButton} bg-transparent text-primary hover:bg-primary-light`,
   },
 };
 
