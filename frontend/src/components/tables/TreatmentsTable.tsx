@@ -1,35 +1,35 @@
-import { ChangeEvent, FC, useMemo, useCallback, useState } from "react";
-import TableHeader from "@/components/table/TableHeader";
-import TablePagination from "@/components/table/TablePagination";
-import TableRow from "@/components/table/TableRow";
-import TableSearchField from "@/components/table/TableSearchField";
-import { useDataGrid } from "@/hooks/useDataGrid";
-import useFetch from "@/hooks/useFetch";
-import { useDebounce } from "@/hooks/useDebounce";
-import { ResponseData, SortOrder, TableHeaderCell } from "@/types/Common";
-import { Treatment } from "@/types/Treatments";
-import { useBoolean } from "@/hooks/useBoolean";
-import { AddOrEditTreatmentModal } from "../modals/AddOrEditTreatmentModal";
-import appTheme from "@/theme";
-import AddIcon from "../icons/AddIcon";
+import { ChangeEvent, FC, useMemo, useCallback, useState } from 'react';
+import TableHeader from '@/components/table/TableHeader';
+import TablePagination from '@/components/table/TablePagination';
+import TableRow from '@/components/table/TableRow';
+import TableSearchField from '@/components/table/TableSearchField';
+import { useDataGrid } from '@/hooks/useDataGrid';
+import useFetch from '@/hooks/useFetch';
+import { useDebounce } from '@/hooks/useDebounce';
+import { ResponseData, SortOrder, TableHeaderCell } from '@/types/Common';
+import { Treatment } from '@/types/Treatments';
+import { useBoolean } from '@/hooks/useBoolean';
+import { AddOrEditTreatmentModal } from '../modals/AddOrEditTreatmentModal';
+import appTheme from '@/theme';
+import AddIcon from '../icons/AddIcon';
 
 const headers: TableHeaderCell[] = [
   {
-    key: "treatment_name",
-    label: "Послуга",
+    key: 'treatment_name',
+    label: 'Послуга',
     sortable: true,
     order: SortOrder.ASC,
     isDefault: true,
   },
-  { key: "description", label: "Опис" },
+  { key: 'description', label: 'Опис' },
   {
-    key: "cost",
-    label: "Вартість",
+    key: 'cost',
+    label: 'Вартість',
     sortable: true,
     order: SortOrder.ASC,
   },
-  { key: "cost_comment", label: "Коментар" },
-  { key: "actions", label: null },
+  { key: 'cost_comment', label: 'Коментар' },
+  { key: 'actions', label: null },
 ];
 
 const TreatmentsTable: FC = () => {
@@ -50,16 +50,17 @@ const TreatmentsTable: FC = () => {
   } = useDataGrid();
   const debounceQuery = useDebounce(searchQuery, 300);
 
-  const { data: treatments, isLoading } = useFetch<ResponseData<Treatment>>(
-    "/treatments",
-    {
-      page,
-      limit: pageSize,
-      q: debounceQuery.length > 2 ? debounceQuery : undefined,
-      field: field || "treatment_name",
-      direction: direction || SortOrder.ASC,
-    },
-  );
+  const {
+    data: treatments,
+    isLoading,
+    refetch: refetchTreatment,
+  } = useFetch<ResponseData<Treatment>>('/treatments', {
+    page,
+    limit: pageSize,
+    q: debounceQuery.length > 2 ? debounceQuery : undefined,
+    field: field || 'treatment_name',
+    direction: direction || SortOrder.ASC,
+  });
 
   const totalPages = useMemo(() => {
     return treatments?.total && treatments?.limit
@@ -72,7 +73,7 @@ const TreatmentsTable: FC = () => {
       setPage(1);
       setSearchQuery(evt.target.value);
     },
-    [setPage, setSearchQuery],
+    [setPage, setSearchQuery]
   );
 
   const handleOnEditClick = (treatment: Treatment) => {
@@ -121,11 +122,11 @@ const TreatmentsTable: FC = () => {
                   <td className="px-6 py-4 font-medium text-gray-900">
                     {treatment.treatment_name}
                   </td>
-                  <td className="px-6 py-4">{treatment.description || "—"}</td>
+                  <td className="px-6 py-4">{treatment.description || '—'}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">
                     {`${treatment.cost} грн`}
                   </td>
-                  <td className="px-6 py-4">{treatment.cost_comment || "—"}</td>
+                  <td className="px-6 py-4">{treatment.cost_comment || '—'}</td>
                   <td>
                     <button
                       className={appTheme.button.circle}
@@ -150,9 +151,9 @@ const TreatmentsTable: FC = () => {
             ) : (
               <TableRow rowIndex={0}>
                 <td className="px-6 py-4 text-center" colSpan={headers.length}>
-                  {"Результати для "}
+                  {'Результати для '}
                   <strong>{searchQuery}</strong>
-                  {" не знайдені"}
+                  {' не знайдені'}
                 </td>
               </TableRow>
             )}
@@ -170,6 +171,7 @@ const TreatmentsTable: FC = () => {
 
       <AddOrEditTreatmentModal
         open={openModal}
+        onSuccess={() => refetchTreatment()}
         onClose={() => handleCloseModal()}
         treatment={selectedTreatment}
       />

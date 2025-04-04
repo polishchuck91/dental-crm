@@ -6,7 +6,8 @@ import { useEffect, useMemo, useState } from 'react';
 
 import appTheme from '@/theme';
 import { Treatment } from '@/types/Treatments';
-import { updateTreatment } from '@/api/treatments';
+import { createTreatment, updateTreatment } from '@/api/treatments';
+import { enqueueSnackbar } from 'notistack';
 
 type TreatmentFormValues = Omit<Treatment, 'id' | 'created_at' | 'updated_at'>;
 
@@ -44,6 +45,7 @@ export function AddOrEditTreatmentModal({
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
   const isEditable = useMemo(() => Boolean(treatment), [treatment]);
 
   const resetForm = () => {
@@ -60,13 +62,18 @@ export function AddOrEditTreatmentModal({
   }, [open, treatment]);
 
   const onSubmit = async (data: TreatmentFormValues) => {
-    if (!treatment?.id || !data) return;
-
     try {
       setIsLoading(true);
 
-      await updateTreatment(treatment?.id, data);
+      !isEditable
+        ? await createTreatment(data)
+        : await updateTreatment(treatment?.id!, data);
+
       onSuccess?.();
+      onClose();
+      enqueueSnackbar('Дані оновлено', {
+        variant: 'success',
+      });
       reset();
     } catch (error) {
       console.error(error);
