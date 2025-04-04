@@ -12,6 +12,9 @@ import { useBoolean } from '@/hooks/useBoolean';
 import { AddOrEditTreatmentModal } from '../modals/AddOrEditTreatmentModal';
 import appTheme from '@/theme';
 import AddIcon from '../icons/AddIcon';
+import Table from '../table/Table';
+import TableBody from '../table/TableBody';
+import TableCell from '../table/TableCell';
 
 const headers: TableHeaderCell[] = [
   {
@@ -113,21 +116,22 @@ const TreatmentsTable: FC = () => {
         </div>
 
         {/* Table */}
-        <table className="w-full border-collapse text-left text-sm text-gray-700 dark:text-gray-300">
+        <Table>
           <TableHeader headers={headers} />
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          <TableBody>
             {treatments?.data?.length ? (
               treatments.data.map((treatment, index) => (
                 <TableRow key={treatment.id || index} rowIndex={index}>
-                  <td className="px-6 py-4 font-medium text-gray-900">
+                  <TableCell fontMedium textDark>
                     {treatment.treatment_name}
-                  </td>
-                  <td className="px-6 py-4">{treatment.description || '—'}</td>
-                  <td className="px-6 py-4 font-medium text-gray-900">
-                    {`${treatment.cost} грн`}
-                  </td>
-                  <td className="px-6 py-4">{treatment.cost_comment || '—'}</td>
-                  <td>
+                  </TableCell>
+
+                  <TableCell>{treatment.description || '—'}</TableCell>
+
+                  <TableCell textDark>{`${treatment.cost} грн`}</TableCell>
+
+                  <TableCell>{treatment.cost_comment || '—'}</TableCell>
+                  <TableCell>
                     <button
                       className={appTheme.button.circle}
                       onClick={() => handleOnEditClick(treatment)}
@@ -145,7 +149,7 @@ const TreatmentsTable: FC = () => {
                         />
                       </svg>
                     </button>
-                  </td>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
@@ -157,8 +161,8 @@ const TreatmentsTable: FC = () => {
                 </td>
               </TableRow>
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
 
         {/* Pagination */}
         <TablePagination
