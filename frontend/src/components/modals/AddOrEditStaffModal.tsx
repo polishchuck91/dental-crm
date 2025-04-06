@@ -176,12 +176,14 @@ export function AddOrEditStaffModal({
           {isEditable ? 'Оновити співробітника' : 'Додати співробітника'}
         </Modal.Header>
         <Modal.Body className="px-6 py-4">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            {/* Основна інформація */}
             <fieldset>
-              <legend className="mb-2 text-base font-medium text-gray-900">
+              <legend className="mb-4 text-lg font-semibold text-gray-900">
                 Основна інформація
               </legend>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {/* Прізвище */}
                 <div>
                   <Label htmlFor="last_name" value="Прізвище" />
                   <TextInput
@@ -196,6 +198,7 @@ export function AddOrEditStaffModal({
                   )}
                 </div>
 
+                {/* Імʼя */}
                 <div>
                   <Label htmlFor="first_name" value="Імʼя" />
                   <TextInput
@@ -210,6 +213,7 @@ export function AddOrEditStaffModal({
                   )}
                 </div>
 
+                {/* Стать */}
                 <div>
                   <Label htmlFor="gender" value="Стать" />
                   <Select
@@ -226,29 +230,31 @@ export function AddOrEditStaffModal({
                       {errors.gender.message}
                     </p>
                   )}
-
-                  <div>
-                    <Label htmlFor="role" value="Роль" />
-                    <Select
-                      id="role"
-                      {...register('role')}
-                      color={errors.role ? 'failure' : 'gray'}
-                    >
-                      <option value="">Оберіть роль</option>
-                      {Object.values(Role).map((role) => (
-                        <option key={role} value={role}>
-                          {roleLabels[role]}
-                        </option>
-                      ))}
-                    </Select>
-                    {errors.role && (
-                      <p className="text-sm text-red-500">
-                        {errors.role.message}
-                      </p>
-                    )}
-                  </div>
                 </div>
 
+                {/* Роль */}
+                <div>
+                  <Label htmlFor="role" value="Роль" />
+                  <Select
+                    id="role"
+                    {...register('role')}
+                    color={errors.role ? 'failure' : 'gray'}
+                  >
+                    <option value="">Оберіть роль</option>
+                    {Object.values(Role).map((role) => (
+                      <option key={role} value={role}>
+                        {roleLabels[role]}
+                      </option>
+                    ))}
+                  </Select>
+                  {errors.role && (
+                    <p className="text-sm text-red-500">
+                      {errors.role.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Телефон */}
                 <div>
                   <Label htmlFor="contact_number" value="Номер телефону" />
                   <TextInput
@@ -263,6 +269,7 @@ export function AddOrEditStaffModal({
                   )}
                 </div>
 
+                {/* Дата найму */}
                 <div>
                   <Label htmlFor="hire_date" value="Дата найму" />
                   <TextInput
@@ -280,12 +287,14 @@ export function AddOrEditStaffModal({
               </div>
             </fieldset>
 
+            {/* Облікові дані */}
             {!isEditable && (
               <fieldset>
-                <legend className="mb-2 text-base font-medium text-gray-900">
+                <legend className="mb-4 text-lg font-semibold text-gray-900">
                   Облікові дані
                 </legend>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  {/* Username */}
                   <div>
                     <Label htmlFor="username" value="Імʼя користувача" />
                     <TextInput
@@ -300,6 +309,7 @@ export function AddOrEditStaffModal({
                     )}
                   </div>
 
+                  {/* Email */}
                   <div>
                     <Label htmlFor="email" value="Email" />
                     <TextInput
@@ -315,6 +325,7 @@ export function AddOrEditStaffModal({
                     )}
                   </div>
 
+                  {/* Password */}
                   <div className="md:col-span-2">
                     <Label htmlFor="password" value="Пароль" />
                     <div className="relative flex w-full">
@@ -356,7 +367,8 @@ export function AddOrEditStaffModal({
               </fieldset>
             )}
 
-            <div className="flex flex-col-reverse gap-3 pt-6 md:flex-row md:justify-end">
+            {/* Buttons */}
+            <div className="flex flex-col-reverse gap-4 pt-6 md:flex-row md:justify-end">
               <button
                 type="button"
                 onClick={onClose}

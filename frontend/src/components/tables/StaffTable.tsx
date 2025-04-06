@@ -19,6 +19,9 @@ import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
 import DeleteRowButton from '../buttons/DeleteRowButton';
 import appTheme from '@/theme';
 import AddIcon from '../icons/AddIcon';
+import OpenAddModalButton from '../buttons/OpenAddModalButton';
+import TableSearchField from '../table/TableSearchField';
+import { ChangeEvent, useCallback } from 'react';
 
 const headers: TableHeaderCell[] = [
   {
@@ -52,7 +55,15 @@ const StaffTable = () => {
 
   const { selectedRow, selectRow, clearSelection } = useSelectedRow<Staff>();
 
-  const { page, pageSize, searchQuery, field, direction } = useDataGrid();
+  const {
+    page,
+    pageSize,
+    searchQuery,
+    field,
+    direction,
+    setPage,
+    setSearchQuery,
+  } = useDataGrid();
   const debounceQuery = useDebounce(searchQuery, 300);
 
   const { data: staff, refetch } = useFetch<ResponseData<Staff>>('/staff', {
@@ -62,6 +73,14 @@ const StaffTable = () => {
     field: field || 'last_name',
     direction: direction || SortOrder.ASC,
   });
+
+  const handleOnQueryChange = useCallback(
+    (evt: ChangeEvent<HTMLInputElement>) => {
+      setPage(1);
+      setSearchQuery(evt.target.value);
+    },
+    [setPage, setSearchQuery]
+  );
 
   const handleOnEditClick = (item: Staff) => {
     selectRow(item);
@@ -101,14 +120,12 @@ const StaffTable = () => {
     <div className="p-4">
       <div className="relative overflow-x-auto rounded-lg bg-white shadow-md dark:bg-gray-900">
         <div className="flex w-full flex-row justify-between p-4">
-          <button
-            type="button"
-            className={appTheme.button.primary.outline}
-            onClick={toggleModal}
-          >
-            <AddIcon />
-            <span className="ml-2"> Додати</span>
-          </button>
+          <OpenAddModalButton onClick={toggleModal} />
+          <TableSearchField
+            autoFocus
+            value={searchQuery}
+            onChange={handleOnQueryChange}
+          />
         </div>
 
         <Table>

@@ -22,6 +22,8 @@ import EditRowButton from '../buttons/EditRowButton';
 import { NoResultsRow } from '../table/NoResultsRow';
 import DeleteRowButton from '../buttons/DeleteRowButton';
 import useSelectedRow from '@/hooks/useSelectedRow';
+import TableToolbar from '../table/TableToolbar';
+import OpenAddModalButton from '../buttons/OpenAddModalButton';
 
 const headers: TableHeaderCell[] = [
   {
@@ -135,22 +137,14 @@ const TreatmentsTable: FC = () => {
     <div className="p-4">
       <div className="relative overflow-x-auto rounded-lg bg-white shadow-md dark:bg-gray-900">
         {/* Search Input */}
-        <div className="flex w-full flex-row justify-between p-4">
-          <button
-            type="button"
-            className={appTheme.button.primary.outline}
-            onClick={toggleModal}
-          >
-            <AddIcon />
-            <span className="ml-2"> Додати</span>
-          </button>
+        <TableToolbar>
+          <OpenAddModalButton onClick={toggleModal} />
           <TableSearchField
             autoFocus
             value={searchQuery}
             onChange={handleOnQueryChange}
           />
-        </div>
-
+        </TableToolbar>
         {/* Table */}
         <Table>
           <TableHeader headers={headers} />
