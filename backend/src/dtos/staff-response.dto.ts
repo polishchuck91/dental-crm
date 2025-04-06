@@ -1,5 +1,6 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { UserResponseDto } from 'src/dtos/response-user.dto';
+import { Role } from 'src/enums/role.enum';
 
 export class StaffDto {
   @Expose()
@@ -13,6 +14,9 @@ export class StaffDto {
 
   @Expose()
   gender: string;
+
+  @Expose()
+  role: Role;
 
   @Expose()
   contact_number: string;

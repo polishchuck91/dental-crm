@@ -1,4 +1,5 @@
-import { Role } from "../constants/roles";
+import { Role } from '../constants/roles';
+import { Staff } from './Staff';
 
 export interface UserBase {
   user: User;
@@ -16,15 +17,6 @@ export interface User {
   patient?: Patient;
 }
 
-export interface Staff {
-  id: number;
-  firstName: string;
-  lastName: string;
-  gender: Gender;
-  contactNumber: string;
-  hireDate: string;
-}
-
 export interface Patient {
   id: number;
   firstName: string;
@@ -35,7 +27,7 @@ export interface Patient {
   address?: Address;
 }
 
-export type Gender = "male" | "female" | "other";
+export type Gender = 'male' | 'female' | 'other';
 
 export interface Address {
   street: string;

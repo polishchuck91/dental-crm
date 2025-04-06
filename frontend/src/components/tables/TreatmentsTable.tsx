@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useMemo, useCallback, useState } from 'react';
+import { ChangeEvent, FC, useCallback, useState, useEffect } from 'react';
 import TableHeader from '@/components/table/TableHeader';
 import TablePagination from '@/components/table/TablePagination';
 import TableRow from '@/components/table/TableRow';
@@ -16,8 +16,12 @@ import Table from '../table/Table';
 import TableBody from '../table/TableBody';
 import TableCell from '../table/TableCell';
 import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
-import { deleteTreatment } from '@/api/treatments';
+import { deleteTreatment } from '@/api/endpoints/treatments';
 import { enqueueSnackbar } from 'notistack';
+import EditRowButton from '../buttons/EditRowButton';
+import { NoResultsRow } from '../table/NoResultsRow';
+import DeleteRowButton from '../buttons/DeleteRowButton';
+import useSelectedRow from '@/hooks/useSelectedRow';
 
 const headers: TableHeaderCell[] = [
   {
@@ -35,7 +39,7 @@ const headers: TableHeaderCell[] = [
     order: SortOrder.ASC,
   },
   { key: 'cost_comment', label: 'Коментар' },
-  { key: 'actions', label: null },
+  { key: 'actions' },
 ];
 
 const TreatmentsTable: FC = () => {
@@ -43,9 +47,8 @@ const TreatmentsTable: FC = () => {
   const { value: openConfirmDelete, toggle: toggleConfirmDelete } =
     useBoolean();
 
-  const [selectedTreatment, setSelectedTreatment] = useState<
-    Treatment | undefined
-  >(undefined);
+  const { selectedRow, selectRow, clearSelection } =
+    useSelectedRow<Treatment>();
 
   const {
     page,
@@ -55,6 +58,8 @@ const TreatmentsTable: FC = () => {
     setPage,
     field,
     direction,
+    setTotalItems,
+    totalPages,
   } = useDataGrid();
   const debounceQuery = useDebounce(searchQuery, 300);
 
@@ -70,12 +75,6 @@ const TreatmentsTable: FC = () => {
     direction: direction || SortOrder.ASC,
   });
 
-  const totalPages = useMemo(() => {
-    return treatments?.total && treatments?.limit
-      ? Math.ceil(treatments.total / treatments.limit)
-      : 1;
-  }, [treatments]);
-
   const handleOnQueryChange = useCallback(
     (evt: ChangeEvent<HTMLInputElement>) => {
       setPage(1);
@@ -85,27 +84,27 @@ const TreatmentsTable: FC = () => {
   );
 
   const handleOnEditClick = (treatment: Treatment) => {
-    setSelectedTreatment(treatment);
+    selectRow(treatment);
     toggleModal();
   };
 
   const handleOnDeleteOpen = (treatment: Treatment) => {
-    setSelectedTreatment(treatment);
+    selectRow(treatment);
     toggleConfirmDelete();
   };
 
   const handleOnDeleteClose = () => {
     toggleConfirmDelete();
-    setSelectedTreatment(undefined);
+    clearSelection();
   };
 
   const handleOnDelete = async () => {
-    if (!selectedTreatment?.id) return;
+    if (!selectedRow?.id) return;
 
     try {
-      await deleteTreatment(selectedTreatment?.id);
+      await deleteTreatment(selectedRow?.id);
       toggleConfirmDelete();
-      setSelectedTreatment(undefined);
+      clearSelection();
       refetchTreatment();
       enqueueSnackbar('Запис успішно видалено!', {
         variant: 'success',
@@ -117,8 +116,14 @@ const TreatmentsTable: FC = () => {
 
   const handleCloseModal = () => {
     toggleModal();
-    setSelectedTreatment(undefined);
+    clearSelection();
   };
+
+  useEffect(() => {
+    if (treatments?.total) {
+      setTotalItems(treatments.total);
+    }
+  }, [treatments?.total, setTotalItems]);
 
   if (isLoading) {
     return (
@@ -163,54 +168,22 @@ const TreatmentsTable: FC = () => {
 
                   <TableCell>{treatment.cost_comment || '—'}</TableCell>
                   <TableCell isActions>
-                    <button
-                      className={appTheme.button.secondary.circle}
-                      onClick={() => handleOnEditClick(treatment)}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 16 16"
-                        fill="currentColor"
-                        className="size-4"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-
-                    <button
-                      className={appTheme.button.danger.circle}
-                      onClick={() => handleOnDeleteOpen(treatment)}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="size-6"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 12h14"
-                        />
-                      </svg>
-                    </button>
+                    <EditRowButton
+                      item={treatment}
+                      onEditClick={() => handleOnEditClick(treatment)}
+                    />
+                    <DeleteRowButton
+                      item={treatment}
+                      onDeleteOpen={() => handleOnDeleteOpen(treatment)}
+                    />
                   </TableCell>
                 </TableRow>
               ))
             ) : (
-              <TableRow rowIndex={0}>
-                <td className="px-6 py-4 text-center" colSpan={headers.length}>
-                  {'Результати для '}
-                  <strong>{searchQuery}</strong>
-                  {' не знайдені'}
-                </td>
-              </TableRow>
+              <NoResultsRow
+                colSpan={headers.length}
+                searchQuery={searchQuery}
+              />
             )}
           </TableBody>
         </Table>
@@ -228,7 +201,7 @@ const TreatmentsTable: FC = () => {
         open={openModal}
         onSuccess={() => refetchTreatment()}
         onClose={() => handleCloseModal()}
-        treatment={selectedTreatment}
+        treatment={selectedRow}
       />
 
       <ConfirmDeleteModal

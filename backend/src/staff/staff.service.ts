@@ -102,9 +102,11 @@ export class StaffService {
         'staff.first_name',
         'staff.last_name',
         'staff.gender',
+        'staff.hire_date',
         'staff.contact_number',
         'staff.created_at',
         'user.id',
+        'user.role',
         'user.email',
       ]);
 

@@ -9,6 +9,6 @@ export const AppDataSource = new DataSource({
   database: process.env.DATABASE_NAME || 'mydb',
   entities: ['src/**/*.entity.ts'], // Вказати ваші сутності
   migrations: ['src/migrations/*.ts'], // Вказати папку для міграцій
-  synchronize: false,
+  synchronize: true,
   logging: true,
 });

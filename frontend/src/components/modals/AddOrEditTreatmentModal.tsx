@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import appTheme from '@/theme';
 import { Treatment } from '@/types/Treatments';
-import { createTreatment, updateTreatment } from '@/api/treatments';
+import { createTreatment, updateTreatment } from '@/api/endpoints/treatments';
 import { enqueueSnackbar } from 'notistack';
 
 type TreatmentFormValues = Omit<Treatment, 'id' | 'created_at' | 'updated_at'>;

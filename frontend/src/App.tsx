@@ -11,6 +11,7 @@ import UsersList from './Pages/CRM/Users/UsersList';
 
 import PatientsList from './Pages/CRM/Patients/PatientsList';
 import { SnackbarProvider } from 'notistack';
+import Staff from './Pages/CRM/Staff';
 
 const protectedRouteProps = {
   requiredRoles: [Role.Admin, Role.Dentist, Role.Receptionist],
@@ -28,6 +29,7 @@ function App() {
             <ProtectedRoute {...protectedRouteProps} element={<CRM />} />
           }
         >
+          <Route path={appLinks.crm.staff.list} element={<Staff />} />
           <Route path={appLinks.crm.users.list}>
             <Route index element={<UsersList />} />
           </Route>

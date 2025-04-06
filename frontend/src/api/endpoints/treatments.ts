@@ -1,5 +1,5 @@
 import { Treatment } from '@/types/Treatments';
-import axiosInstance from './axiosInstance';
+import axiosInstance from '../axiosInstance';
 
 export const createTreatment = async (
   treatment: Omit<Treatment, 'id' | 'created_at' | 'updated_at'>
@@ -8,7 +8,7 @@ export const createTreatment = async (
 export const updateTreatment = async (
   id: number,
   treatment: Omit<Treatment, 'id' | 'created_at' | 'updated_at'>
-) => await axiosInstance.patch(`/treatments/${id}`, { ...treatment });
+) => await axiosInstance.patch(`/treatments/${id}`, treatment);
 
 export const deleteTreatment = async (id: number) =>
   await axiosInstance.delete(`/treatments/${id}`);

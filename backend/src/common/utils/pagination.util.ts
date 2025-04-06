@@ -29,7 +29,9 @@ export async function paginate<T>(
     query.andWhere(`(${searchConditions})`, { search: `%${q}%` });
   }
 
-  query.addOrderBy(field, direction);
+  if (field) {
+    query.addOrderBy(`${query.alias}.${field}`, direction);
+  }
 
   // Debugging: Log generated SQL query
   console.log('Generated SQL Query:', query.getSql());

@@ -11,13 +11,13 @@ export interface Timestamp {
 }
 
 export enum SortOrder {
-  ASC = "ASC",
-  DESC = "DESC",
+  ASC = 'ASC',
+  DESC = 'DESC',
 }
 
 export interface TableHeaderCell {
   key: string;
-  label: string | null;
+  label?: string;
   sortable?: boolean;
   order?: SortOrder;
   isDefault?: boolean;
