@@ -1,4 +1,4 @@
-import { Modal, Label, TextInput, Select } from 'flowbite-react';
+import { Modal, Label, TextInput, Select, Textarea } from 'flowbite-react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -8,14 +8,27 @@ import { enqueueSnackbar } from 'notistack';
 import appTheme from '@/theme';
 import { Staff, StaffBase } from '@/types/Staff';
 import { createStaff, updateStaff } from '@/api/endpoints/staff';
+import { createPatient } from '@/api/endpoints/patients'; // 🆕
 import { Role } from '@/constants/roles';
 
-export type StaffFormValues = StaffBase & {
+function toISODate(dateStr: string): string {
+  if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
+    const [day, month, year] = dateStr.split('.');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  }
+  return dateStr; // якщо вже ISO або інший формат
+}
+
+export type UserFormValues = StaffBase & {
   username: string;
   email: string;
   password: string;
   role: Role;
+  date_of_birth?: string; // для пацієнта
+  address?: string; // 🆕 нове поле
 };
+
+export type FormMode = 'staff' | 'patient';
 
 const roleLabels: Record<Role, string> = {
   [Role.Admin]: 'Адмін',
@@ -33,44 +46,74 @@ const schema = yup.object().shape({
     .oneOf(['male', 'female'], 'Оберіть стать')
     .required('Стать обовʼязкова'),
   contact_number: yup.string().required('Номер телефону обовʼязковий'),
-  hire_date: yup.string().required('Дата найму обовʼязкова'),
+
+  hire_date: yup.string().when('$mode', {
+    is: 'staff',
+    then: (schema) => schema.required('Дата найму обовʼязкова'),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+
+  date_of_birth: yup.string().when('$mode', {
+    is: 'patient',
+    then: (schema) => schema.required('Дата народження обовʼязкова'),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+
   username: yup.string().when('$isEditable', {
     is: false,
     then: (schema) => schema.required("Ім'я користувача обов'язкове"),
+    otherwise: (schema) => schema.notRequired(),
   }),
+
   email: yup.string().when('$isEditable', {
     is: false,
     then: (schema) =>
       schema
         .email('Невалідна електронна адреса')
         .required('Email обовʼязковий'),
+    otherwise: (schema) => schema.notRequired(),
   }),
+
   password: yup.string().when('$isEditable', {
     is: false,
     then: (schema) =>
       schema.required('Пароль обовʼязковий').min(6, 'Мінімум 6 символів'),
+    otherwise: (schema) => schema.notRequired(),
   }),
 
-  role: yup
-    .mixed<Role>()
-    .oneOf(Object.values(Role), 'Оберіть роль')
-    .required('Роль обовʼязкова'),
+  role: yup.mixed<Role>().when('$mode', {
+    is: 'staff',
+    then: (schema) =>
+      schema
+        .oneOf(Object.values(Role), 'Оберіть роль')
+        .required('Роль обовʼязкова'),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+
+  address: yup.string().when('$mode', {
+    is: 'patient',
+    then: (schema) => schema.required('Адреса обовʼязкова'),
+    otherwise: (schema) => schema.notRequired(),
+  }),
 });
 
-type AddOrEditStaffModalProps = {
+type AddOrEditUserModalProps = {
+  mode: FormMode;
   open: boolean;
   onClose?: () => void;
   onSuccess?: () => void;
   staff?: Staff;
 };
 
-export function AddOrEditStaffModal({
+export function AddOrEditUserModal({
+  mode,
   open,
   onClose,
   onSuccess,
   staff,
-}: AddOrEditStaffModalProps) {
+}: AddOrEditUserModalProps) {
   const isEditable = useMemo(() => Boolean(staff), [staff]);
+  const isPatient = mode === 'patient';
 
   const {
     register,
@@ -78,9 +121,9 @@ export function AddOrEditStaffModal({
     formState: { errors },
     reset,
     setValue,
-  } = useForm<StaffFormValues>({
-    context: { isEditable },
-    // @ts-ignore
+  } = useForm<UserFormValues>({
+    context: { isEditable, mode },
+    //@ts-ignore
     resolver: yupResolver(schema),
   });
 
@@ -91,7 +134,7 @@ export function AddOrEditStaffModal({
       first_name: staff?.first_name ?? '',
       last_name: staff?.last_name ?? '',
       gender: staff?.gender,
-      role: staff?.user.role ?? ('' as Role),
+      role: staff?.user.role ?? (isPatient ? Role.Patient : ('' as Role)),
       contact_number: staff?.contact_number ?? '',
       hire_date: staff?.hire_date ?? '',
       username: '',
@@ -104,24 +147,41 @@ export function AddOrEditStaffModal({
     if (open) resetForm();
   }, [open, staff]);
 
-  const onSubmit = async (data: StaffFormValues) => {
+  const onSubmit = async (data: UserFormValues) => {
     try {
       setIsLoading(true);
-
-      const { username, email, password, role, ...staffData } = data;
+      const { username, email, password, role, ...rest } = data;
 
       if (isEditable && staff?.id) {
         await updateStaff(staff.id, {
-          ...staffData,
-          // @ts-ignore
+          ...rest,
+          //@ts-ignore
           role,
         });
       } else {
-        await createStaff(data);
+        if (isPatient) {
+          const { hire_date, ...rest } = data;
+
+          const dateOfBirth = toISODate(data.date_of_birth || '');
+
+          //@ts-ignore
+          await createPatient({
+            ...rest,
+            date_of_birth: dateOfBirth,
+          });
+        } else {
+          await createStaff(data);
+        }
       }
 
       enqueueSnackbar(
-        isEditable ? 'Дані співробітника оновлено' : 'Співробітника додано',
+        isEditable
+          ? isPatient
+            ? 'Дані пацієнта оновлено'
+            : 'Дані співробітника оновлено'
+          : isPatient
+            ? 'Пацієнта додано'
+            : 'Співробітника додано',
         { variant: 'success' }
       );
 
@@ -148,7 +208,6 @@ export function AddOrEditStaffModal({
       password += randomChar(chars);
     }
 
-    // Додати хоча б один спецсимвол у випадкову позицію
     const special = randomChar(specialChars);
     const insertAt = Math.floor(Math.random() * password.length);
     const finalPassword =
@@ -165,7 +224,6 @@ export function AddOrEditStaffModal({
           onClick={onClose}
         />
       )}
-
       <Modal
         show={open}
         onClose={onClose}
@@ -173,16 +231,23 @@ export function AddOrEditStaffModal({
         className="z-50 mx-auto w-full max-w-[800px]"
       >
         <Modal.Header className="rounded-t-xl bg-gray-100 px-6 py-4 text-xl font-semibold text-gray-800">
-          {isEditable ? 'Оновити співробітника' : 'Додати співробітника'}
+          {isEditable
+            ? isPatient
+              ? 'Оновити пацієнта'
+              : 'Оновити співробітника'
+            : isPatient
+              ? 'Додати пацієнта'
+              : 'Додати співробітника'}
         </Modal.Header>
         <Modal.Body className="px-6 py-4">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
             {/* Основна інформація */}
-            <fieldset>
-              <legend className="mb-4 text-lg font-semibold text-gray-900">
+            <fieldset className="space-y-6">
+              <legend className="border-b pb-2 text-lg font-semibold text-gray-900">
                 Основна інформація
               </legend>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {/* Прізвище */}
                 <div>
                   <Label htmlFor="last_name" value="Прізвище" />
@@ -233,26 +298,28 @@ export function AddOrEditStaffModal({
                 </div>
 
                 {/* Роль */}
-                <div>
-                  <Label htmlFor="role" value="Роль" />
-                  <Select
-                    id="role"
-                    {...register('role')}
-                    color={errors.role ? 'failure' : 'gray'}
-                  >
-                    <option value="">Оберіть роль</option>
-                    {Object.values(Role).map((role) => (
-                      <option key={role} value={role}>
-                        {roleLabels[role]}
-                      </option>
-                    ))}
-                  </Select>
-                  {errors.role && (
-                    <p className="text-sm text-red-500">
-                      {errors.role.message}
-                    </p>
-                  )}
-                </div>
+                {mode === 'staff' && (
+                  <div>
+                    <Label htmlFor="role" value="Роль" />
+                    <Select
+                      id="role"
+                      {...register('role')}
+                      color={errors.role ? 'failure' : 'gray'}
+                    >
+                      <option value="">Оберіть роль</option>
+                      {Object.values(Role).map((role) => (
+                        <option key={role} value={role}>
+                          {roleLabels[role]}
+                        </option>
+                      ))}
+                    </Select>
+                    {errors.role && (
+                      <p className="text-sm text-red-500">
+                        {errors.role.message}
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {/* Телефон */}
                 <div>
@@ -269,28 +336,61 @@ export function AddOrEditStaffModal({
                   )}
                 </div>
 
-                {/* Дата найму */}
+                {/* Дата найму або народження */}
                 <div>
-                  <Label htmlFor="hire_date" value="Дата найму" />
-                  <TextInput
-                    id="hire_date"
-                    type="date"
-                    {...register('hire_date')}
-                    color={errors.hire_date ? 'failure' : 'gray'}
+                  <Label
+                    htmlFor={isPatient ? 'date_of_birth' : 'hire_date'}
+                    value={isPatient ? 'Дата народження' : 'Дата найму'}
                   />
-                  {errors.hire_date && (
+                  <TextInput
+                    id={isPatient ? 'date_of_birth' : 'hire_date'}
+                    type="date"
+                    {...register(isPatient ? 'date_of_birth' : 'hire_date')}
+                    color={
+                      isPatient
+                        ? errors.date_of_birth
+                          ? 'failure'
+                          : 'gray'
+                        : errors.hire_date
+                          ? 'failure'
+                          : 'gray'
+                    }
+                  />
+                  {isPatient && errors.date_of_birth && (
+                    <p className="text-sm text-red-500">
+                      {errors.date_of_birth.message}
+                    </p>
+                  )}
+                  {!isPatient && errors.hire_date && (
                     <p className="text-sm text-red-500">
                       {errors.hire_date.message}
                     </p>
                   )}
                 </div>
+
+                {/* Адреса */}
+                {isPatient && (
+                  <div className="md:col-span-2 lg:col-span-3">
+                    <Label htmlFor="address" value="Адреса" />
+                    <Textarea
+                      id="address"
+                      {...register('address')}
+                      color={errors.address ? 'failure' : 'gray'}
+                    />
+                    {errors.address && (
+                      <p className="text-sm text-red-500">
+                        {errors.address.message}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </fieldset>
 
             {/* Облікові дані */}
             {!isEditable && (
-              <fieldset>
-                <legend className="mb-4 text-lg font-semibold text-gray-900">
+              <fieldset className="space-y-6">
+                <legend className="border-b pb-2 text-lg font-semibold text-gray-900">
                   Облікові дані
                 </legend>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -368,7 +468,7 @@ export function AddOrEditStaffModal({
             )}
 
             {/* Buttons */}
-            <div className="flex flex-col-reverse gap-4 pt-6 md:flex-row md:justify-end">
+            <div className="flex flex-col-reverse justify-end gap-4 pt-6 md:flex-row">
               <button
                 type="button"
                 onClick={onClose}

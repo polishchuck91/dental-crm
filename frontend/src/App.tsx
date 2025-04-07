@@ -9,7 +9,7 @@ import Treatments from './Pages/CRM/Treatments';
 import Appointments from './Pages/CRM/Appointments';
 import UsersList from './Pages/CRM/Users/UsersList';
 
-import PatientsList from './Pages/CRM/Patients/PatientsList';
+import Patients from './Pages/CRM/Patients';
 import { SnackbarProvider } from 'notistack';
 import Staff from './Pages/CRM/Staff';
 
@@ -30,12 +30,9 @@ function App() {
           }
         >
           <Route path={appLinks.crm.staff.list} element={<Staff />} />
+          <Route path={appLinks.crm.patients.list} element={<Patients />} />
           <Route path={appLinks.crm.users.list}>
             <Route index element={<UsersList />} />
-          </Route>
-
-          <Route path={appLinks.crm.patients.list}>
-            <Route index element={<PatientsList />} />
           </Route>
 
           <Route

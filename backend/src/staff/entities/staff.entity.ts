@@ -1,37 +1,36 @@
-import { TimestampsEntity } from 'src/entities/timestamps.entity';
-import { Gender } from 'src/enums/gender.enum';
-import { User } from 'src/user/entities/user.entity';
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  OneToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Transform } from 'class-transformer';
+import { IsNotEmpty, IsEnum, IsDateString, IsOptional } from 'class-validator';
+import { Gender } from '../../enums/gender.enum';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
-@Entity('staff')
-export class Staff extends TimestampsEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+export class CreatePatientDto extends CreateUserDto {
+  @IsNotEmpty()
   first_name: string;
 
-  @Column()
+  @IsNotEmpty()
   last_name: string;
 
-  @Column({ type: 'enum', enum: Gender })
+  @Transform(({ value }) => {
+    // Якщо вже ISO-8601 — не змінюємо
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+
+    // Якщо формат DD.MM.YYYY — трансформуємо
+    if (/^\d{2}\.\d{2}\.\d{4}$/.test(value)) {
+      const [day, month, year] = value.split('.');
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+
+    return value; // fallback
+  })
+  @IsDateString()
+  date_of_birth: string;
+
+  @IsEnum(Gender)
   gender: Gender;
 
-  @Column({ length: 15, unique: true })
+  @IsNotEmpty()
   contact_number: string;
 
-  @Column({ type: 'date' })
-  hire_date: string;
-
-  @OneToOne(() => User, (user) => user.staff, {
-    onDelete: 'CASCADE', // Ensures the User is deleted when Staff is deleted
-  })
-  @JoinColumn({ name: 'user_id' }) // Specifies that Staff is the owning side
-  user: User;
+  @IsOptional()
+  address?: string;
 }

@@ -10,23 +10,23 @@ import TableRow from '../table/TableRow';
 import TableCell from '../table/TableCell';
 import { NoResultsRow } from '../table/NoResultsRow';
 import { useBoolean } from '@/hooks/useBoolean';
-
-import { AddOrEditStaffModal } from '../modals/AddOrEditStaffModal';
 import EditRowButton from '../buttons/EditRowButton';
 import useSelectedRow from '@/hooks/useSelectedRow';
 import { enqueueSnackbar } from 'notistack';
 import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
 import DeleteRowButton from '../buttons/DeleteRowButton';
-import appTheme from '@/theme';
-import AddIcon from '../icons/AddIcon';
 import OpenAddModalButton from '../buttons/OpenAddModalButton';
 import TableSearchField from '../table/TableSearchField';
 import { ChangeEvent, useCallback } from 'react';
+import { AddOrEditUserModal } from '../modals/AddOrEditUserModal';
 
 const headers: TableHeaderCell[] = [
   {
     key: 'last_name',
     label: 'Прізвище',
+    sortable: true,
+    order: SortOrder.ASC,
+    isDefault: true,
   },
   {
     key: 'first_name',
@@ -167,7 +167,8 @@ const StaffTable = () => {
         </Table>
       </div>
 
-      <AddOrEditStaffModal
+      <AddOrEditUserModal
+        mode="staff"
         open={openModal}
         staff={selectedRow}
         onClose={() => handleCloseModal()}

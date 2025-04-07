@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useCallback, useState, useEffect } from 'react';
+import { ChangeEvent, FC, useCallback, useEffect } from 'react';
 import TableHeader from '@/components/table/TableHeader';
 import TablePagination from '@/components/table/TablePagination';
 import TableRow from '@/components/table/TableRow';
@@ -10,8 +10,6 @@ import { ResponseData, SortOrder, TableHeaderCell } from '@/types/Common';
 import { Treatment } from '@/types/Treatments';
 import { useBoolean } from '@/hooks/useBoolean';
 import { AddOrEditTreatmentModal } from '../modals/AddOrEditTreatmentModal';
-import appTheme from '@/theme';
-import AddIcon from '../icons/AddIcon';
 import Table from '../table/Table';
 import TableBody from '../table/TableBody';
 import TableCell from '../table/TableCell';

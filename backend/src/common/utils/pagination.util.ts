@@ -23,7 +23,12 @@ export async function paginate<T>(
   // Handle search functionality
   if (q && searchFields?.length) {
     const searchConditions = searchFields
-      .map((f) => `${query.alias}.${f} LIKE :search`)
+      .map((f) => {
+        // Якщо поле вже має alias (тобто містить крапку), використовуємо як є
+        return f.includes('.')
+          ? `${f} LIKE :search`
+          : `${query.alias}.${f} LIKE :search`;
+      })
       .join(' OR ');
 
     query.andWhere(`(${searchConditions})`, { search: `%${q}%` });
