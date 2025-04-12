@@ -2,23 +2,22 @@ import { useDataGrid } from '@/hooks/useDataGrid';
 import { useDebounce } from '@/hooks/useDebounce';
 import useFetch from '@/hooks/useFetch';
 import { ResponseData, SortOrder, TableHeaderCell } from '@/types/Common';
-import { Staff } from '@/types/Staff';
 import Table from '../table/Table';
 import TableHeader from '../table/TableHeader';
 import TableBody from '../table/TableBody';
 import TableRow from '../table/TableRow';
 import TableCell from '../table/TableCell';
-import { NoResultsRow } from '../table/NoResultsRow';
-import { useBoolean } from '@/hooks/useBoolean';
-import EditRowButton from '../buttons/EditRowButton';
-import useSelectedRow from '@/hooks/useSelectedRow';
-import { enqueueSnackbar } from 'notistack';
-import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
-import DeleteRowButton from '../buttons/DeleteRowButton';
-import OpenAddModalButton from '../buttons/OpenAddModalButton';
 import TableSearchField from '../table/TableSearchField';
 import { ChangeEvent, useCallback } from 'react';
+import OpenAddModalButton from '../buttons/OpenAddModalButton';
+import { useBoolean } from '@/hooks/useBoolean';
+import useSelectedRow from '@/hooks/useSelectedRow';
 import { AddOrEditUserModal } from '../modals/AddOrEditUserModal';
+import { Patient } from '@/types/Patient';
+import EditRowButton from '../buttons/EditRowButton';
+import DeleteRowButton from '../buttons/DeleteRowButton';
+import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
+import { enqueueSnackbar } from 'notistack';
 
 const headers: TableHeaderCell[] = [
   {
@@ -30,30 +29,47 @@ const headers: TableHeaderCell[] = [
   },
   {
     key: 'first_name',
-    label: 'Імя',
+    label: 'Імʼя',
+  },
+  {
+    key: 'gender',
+    label: 'Стать',
+  },
+  {
+    key: 'date_of_birth',
+    label: 'Дата народження',
   },
   {
     key: 'contact_number',
     label: 'Телефон',
   },
   {
+    key: 'address',
+    label: 'Адреса',
+  },
+  {
     key: 'user.email',
     label: 'Email',
   },
   {
-    key: 'hire_date',
-    label: 'Дата оформлення',
+    key: 'user.username',
+    label: 'Логін',
   },
-
-  { key: 'actions' },
+  {
+    key: 'created_at',
+    label: 'Дата створення',
+  },
+  {
+    key: 'actions',
+  },
 ];
 
-const StaffTable = () => {
+const PatientsTable = () => {
   const { value: openModal, toggle: toggleModal } = useBoolean();
   const { value: openConfirmDelete, toggle: toggleConfirmDelete } =
     useBoolean();
 
-  const { selectedRow, selectRow, clearSelection } = useSelectedRow<Staff>();
+  const { selectedRow, selectRow, clearSelection } = useSelectedRow<Patient>();
 
   const {
     page,
@@ -64,9 +80,10 @@ const StaffTable = () => {
     setPage,
     setSearchQuery,
   } = useDataGrid();
+
   const debounceQuery = useDebounce(searchQuery, 300);
 
-  const { data: staff, refetch } = useFetch<ResponseData<Staff>>('/staff', {
+  const { data: patients, refetch } = useFetch<ResponseData<any>>('/patients', {
     page,
     limit: pageSize,
     q: debounceQuery.length > 2 ? debounceQuery : undefined,
@@ -82,19 +99,19 @@ const StaffTable = () => {
     [setPage, setSearchQuery]
   );
 
-  const handleOnEditClick = (item: Staff) => {
-    selectRow(item);
-    toggleModal();
-  };
-
   const handleCloseModal = () => {
     refetch();
     toggleModal();
     clearSelection();
   };
 
-  const handleOnDeleteOpen = (staff: Staff) => {
-    selectRow(staff);
+  const handleOnEditClick = (item: Patient) => {
+    selectRow(item);
+    toggleModal();
+  };
+
+  const handleOnDeleteOpen = (item: Patient) => {
+    selectRow(item);
     toggleConfirmDelete();
   };
 
@@ -127,50 +144,53 @@ const StaffTable = () => {
             onChange={handleOnQueryChange}
           />
         </div>
-
         <Table>
           <TableHeader headers={headers} />
           <TableBody>
-            {staff?.data.length ? (
-              staff.data.map((item, index) => (
-                <TableRow key={item.id} rowIndex={index}>
+            {patients?.data.length &&
+              patients.data.map((patient, index) => (
+                <TableRow key={patient.id} rowIndex={index}>
                   <TableCell fontMedium textDark>
-                    {item['last_name']}
+                    {patient.last_name}
                   </TableCell>
                   <TableCell fontMedium textDark>
-                    {item['first_name']}
+                    {patient.first_name}
                   </TableCell>
-                  <TableCell>{item['contact_number']}</TableCell>
-                  <TableCell>{item.user.email}</TableCell>
+                  <TableCell>{patient.gender}</TableCell>
                   <TableCell>
-                    {new Date(item.hire_date).toLocaleDateString('uk-UA')}
+                    {new Date(patient.date_of_birth).toLocaleDateString(
+                      'uk-UA'
+                    )}
+                  </TableCell>
+                  <TableCell>{patient.contact_number}</TableCell>
+                  <TableCell>{patient.address}</TableCell>
+                  <TableCell>{patient.user.email}</TableCell>
+                  <TableCell>{patient.user.login}</TableCell>
+                  <TableCell>
+                    {new Date(patient.user.created_at).toLocaleDateString(
+                      'uk-UA'
+                    )}
                   </TableCell>
                   <TableCell isActions>
                     <EditRowButton
-                      item={item}
-                      onEditClick={() => handleOnEditClick(item)}
+                      item={patient}
+                      onEditClick={() => handleOnEditClick(patient)}
                     />
                     <DeleteRowButton
-                      item={staff}
-                      onDeleteOpen={() => handleOnDeleteOpen(item)}
+                      item={patient}
+                      onDeleteOpen={() => handleOnDeleteOpen(patient)}
                     />
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <NoResultsRow
-                colSpan={headers.length}
-                searchQuery={searchQuery}
-              />
-            )}
+              ))}
           </TableBody>
         </Table>
       </div>
 
       <AddOrEditUserModal
-        mode="staff"
+        mode="patient"
         open={openModal}
-        item={selectedRow as Staff}
+        item={selectedRow as Patient}
         onClose={() => handleCloseModal()}
       />
 
@@ -183,4 +203,4 @@ const StaffTable = () => {
   );
 };
 
-export default StaffTable;
+export default PatientsTable;

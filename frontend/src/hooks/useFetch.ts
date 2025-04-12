@@ -11,9 +11,26 @@ const fetcher = async ([url, params]: [
   return response.data;
 };
 
-function useFetch<T>(url: string, params?: Record<string, any>) {
+interface UseFetchOptions {
+  minQueryLength?: number; // optional condition to trigger fetching
+}
+
+function useFetch<T>(
+  url: string,
+  params?: Record<string, any>,
+  options?: UseFetchOptions
+) {
+  const { minQueryLength } = options || {};
+
+  const shouldFetch =
+    !params || !minQueryLength
+      ? true
+      : typeof params.q === 'string'
+        ? params.q.length > minQueryLength
+        : true;
+
   const { data, error, isValidating } = useSwr<T>(
-    params ? [url, params] : null,
+    shouldFetch ? [url, params] : null,
     fetcher
   );
 
@@ -24,7 +41,7 @@ function useFetch<T>(url: string, params?: Record<string, any>) {
   return {
     data,
     error,
-    isLoading: !data && !error,
+    isLoading: shouldFetch && !data && !error,
     isValidating,
     refetch,
   };

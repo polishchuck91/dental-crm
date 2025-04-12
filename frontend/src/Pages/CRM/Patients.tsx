@@ -1,15 +1,11 @@
-import { AddOrEditUserModal } from '@/components/modals/AddOrEditUserModal';
+import PatientsTable from '@/components/tables/PatientsTable';
+import { DataGridProvider } from '@/providers/DataGridProvider';
 
 const Patients = () => {
   return (
-    <div>
-      <AddOrEditUserModal
-        mode="patient"
-        open={true}
-        onClose={() => alert()}
-        onSuccess={() => alert()}
-      />
-    </div>
+    <DataGridProvider>
+      <PatientsTable />
+    </DataGridProvider>
   );
 };
 

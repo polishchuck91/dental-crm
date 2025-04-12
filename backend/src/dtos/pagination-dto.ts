@@ -1,26 +1,17 @@
-import {
-  IsOptional,
-  IsInt,
-  Min,
-  IsPositive,
-  IsString,
-  IsArray,
-  ValidateNested,
-} from 'class-validator';
+import { IsOptional, IsInt, Min, Max, IsString, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class PaginationDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  @Min(1)
-  @IsPositive()
+  @Min(-1) // Allow -1 to disable pagination
   page?: number = 1;
 
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  @Min(1)
+  @Min(-1) // Allow -1 to disable pagination
   limit?: number = 10;
 
   @IsOptional()
@@ -29,9 +20,10 @@ export class PaginationDto {
 
   @IsOptional()
   @IsString()
-  field: string;
+  field?: string;
 
-  @IsString()
   @IsOptional()
-  direction: 'ASC' | 'DESC' = 'ASC'; // Default to ASC if not specified
+  @IsString()
+  @IsIn(['ASC', 'DESC'])
+  direction?: 'ASC' | 'DESC' = 'ASC';
 }

@@ -9,28 +9,29 @@ export interface PaginatedResult<T> {
 
 export async function paginate<T>(
   query: SelectQueryBuilder<T>,
-  page: number = 1,
-  limit: number = 10,
+  page?: number,
+  limit?: number,
   searchFields?: string[],
   q?: string,
   field: string = 'created_at',
   direction: 'ASC' | 'DESC' = 'ASC',
 ): Promise<PaginatedResult<T>> {
-  // Ensure valid page and limit values
-  page = Math.max(1, page);
-  limit = Math.max(1, limit);
+  const isPaginationDisabled =
+    page === -1 || limit === -1 || page == null || limit == null;
 
-  // Handle search functionality
+  if (!isPaginationDisabled) {
+    page = Math.max(1, page!);
+    limit = Math.max(1, limit!);
+  }
+
   if (q && searchFields?.length) {
     const searchConditions = searchFields
-      .map((f) => {
-        // Якщо поле вже має alias (тобто містить крапку), використовуємо як є
-        return f.includes('.')
+      .map((f) =>
+        f.includes('.')
           ? `${f} LIKE :search`
-          : `${query.alias}.${f} LIKE :search`;
-      })
+          : `${query.alias}.${f} LIKE :search`,
+      )
       .join(' OR ');
-
     query.andWhere(`(${searchConditions})`, { search: `%${q}%` });
   }
 
@@ -38,20 +39,26 @@ export async function paginate<T>(
     query.addOrderBy(`${query.alias}.${field}`, direction);
   }
 
-  // Debugging: Log generated SQL query
   console.log('Generated SQL Query:', query.getSql());
   console.log('Query Parameters:', query.getQueryAndParameters());
 
-  // Execute query and retrieve paginated results
-  const [data, total] = await query
-    .skip((page - 1) * limit)
-    .take(limit)
-    .getManyAndCount();
+  let data: T[];
+  let total: number;
+
+  if (isPaginationDisabled) {
+    data = await query.getMany();
+    total = data.length;
+  } else {
+    [data, total] = await query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+  }
 
   return {
     data,
     total,
-    page,
-    limit,
+    page: isPaginationDisabled ? 1 : page,
+    limit: isPaginationDisabled ? total : limit,
   };
 }

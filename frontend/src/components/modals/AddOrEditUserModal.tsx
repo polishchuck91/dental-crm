@@ -8,8 +8,9 @@ import { enqueueSnackbar } from 'notistack';
 import appTheme from '@/theme';
 import { Staff, StaffBase } from '@/types/Staff';
 import { createStaff, updateStaff } from '@/api/endpoints/staff';
-import { createPatient } from '@/api/endpoints/patients'; // 🆕
+import { createPatient, updatePatient } from '@/api/endpoints/patients'; // 🆕
 import { Role } from '@/constants/roles';
+import { Patient } from '@/types/Patient';
 
 function toISODate(dateStr: string): string {
   if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
@@ -24,8 +25,8 @@ export type UserFormValues = StaffBase & {
   email: string;
   password: string;
   role: Role;
-  date_of_birth?: string; // для пацієнта
-  address?: string; // 🆕 нове поле
+  date_of_birth?: string;
+  address?: string;
 };
 
 export type FormMode = 'staff' | 'patient';
@@ -102,7 +103,7 @@ type AddOrEditUserModalProps = {
   open: boolean;
   onClose?: () => void;
   onSuccess?: () => void;
-  staff?: Staff;
+  item?: Staff | Patient;
 };
 
 export function AddOrEditUserModal({
@@ -110,9 +111,9 @@ export function AddOrEditUserModal({
   open,
   onClose,
   onSuccess,
-  staff,
+  item,
 }: AddOrEditUserModalProps) {
-  const isEditable = useMemo(() => Boolean(staff), [staff]);
+  const isEditable = useMemo(() => Boolean(item), [item]);
   const isPatient = mode === 'patient';
 
   const {
@@ -129,39 +130,66 @@ export function AddOrEditUserModal({
 
   const [isLoading, setIsLoading] = useState(false);
 
+  // @ts-ignore
   const resetForm = () => {
+    // @ts-ignore
     reset({
-      first_name: staff?.first_name ?? '',
-      last_name: staff?.last_name ?? '',
-      gender: staff?.gender,
-      role: staff?.user.role ?? (isPatient ? Role.Patient : ('' as Role)),
-      contact_number: staff?.contact_number ?? '',
-      hire_date: staff?.hire_date ?? '',
+      // @ts-ignore
+      first_name: item?.first_name ?? '',
+      // @ts-ignore
+      last_name: item?.last_name ?? '',
+      // @ts-ignore
+      gender: item?.gender,
+      // @ts-ignore
+      role: item?.user.role ?? (isPatient ? Role.Patient : ('' as Role)),
+      // @ts-ignore
+      contact_number: item?.contact_number ?? '',
+      // @ts-ignore
+      hire_date: item?.hire_date ?? '',
+      // @ts-ignore
+      date_of_birth: item?.date_of_birth ?? '',
+      // @ts-ignore
+      address: item?.address ?? '',
+      // @ts-ignore
       username: '',
+      // @ts-ignore
       email: '',
+      // @ts-ignore
       password: '',
     });
   };
 
   useEffect(() => {
     if (open) resetForm();
-  }, [open, staff]);
+  }, [open, item]);
 
   const onSubmit = async (data: UserFormValues) => {
-    try {
-      setIsLoading(true);
-      const { username, email, password, role, ...rest } = data;
+    setIsLoading(true);
 
-      if (isEditable && staff?.id) {
-        await updateStaff(staff.id, {
+    try {
+      if (isEditable && item?.id) {
+        const { username, email, password, ...rest } = data;
+        const payload = {
           ...rest,
+          role: data.role as Role,
+        };
+
+        if (isPatient) {
+          const { hire_date, ...patientData } = payload;
           //@ts-ignore
-          role,
-        });
+          await updatePatient(item.id, patientData);
+        } else {
+          //@ts-ignore
+          await updateStaff(item.id, payload);
+        }
+
+        enqueueSnackbar(
+          isPatient ? 'Дані пацієнта оновлено' : 'Дані співробітника оновлено',
+          { variant: 'success' }
+        );
       } else {
         if (isPatient) {
           const { hire_date, ...rest } = data;
-
           const dateOfBirth = toISODate(data.date_of_birth || '');
 
           //@ts-ignore
@@ -169,21 +197,13 @@ export function AddOrEditUserModal({
             ...rest,
             date_of_birth: dateOfBirth,
           });
+
+          enqueueSnackbar('Пацієнта додано', { variant: 'success' });
         } else {
           await createStaff(data);
+          enqueueSnackbar('Співробітника додано', { variant: 'success' });
         }
       }
-
-      enqueueSnackbar(
-        isEditable
-          ? isPatient
-            ? 'Дані пацієнта оновлено'
-            : 'Дані співробітника оновлено'
-          : isPatient
-            ? 'Пацієнта додано'
-            : 'Співробітника додано',
-        { variant: 'success' }
-      );
 
       onSuccess?.();
       onClose?.();

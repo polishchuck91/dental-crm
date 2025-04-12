@@ -36,6 +36,8 @@ export class TreatmentsService {
 
     const searchFields = ['treatment_name', 'description'];
 
+    console.log(page, limit);
+
     const paginatedResult = await paginate(
       queryBuilder,
       page,
