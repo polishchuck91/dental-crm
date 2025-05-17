@@ -66,6 +66,7 @@ export class PatientTreatmentsService {
         'patientTreatments.id',
         'patientTreatments.treatment',
         'patientTreatments.notes',
+        'patientTreatments.created_at',
         'patient.first_name',
         'patient.last_name',
         'patient.gender',

@@ -12,7 +12,7 @@ export interface User {
   username: string;
   email: string;
   role: Role;
-  createdAt: string;
+  created_at: string;
   staff?: Staff;
   patient?: Patient;
 }

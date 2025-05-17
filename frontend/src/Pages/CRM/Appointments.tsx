@@ -1,13 +1,7 @@
-import TreatmentsAutocomplete from '@/components/autocompletes/TreatmentsAutocomplete';
-import AutocompleteField from '@/components/forms/fields/AutocompleteField';
-import { useState } from 'react';
+import AppointmentsTable from '@/components/tables/AppointmentsTable';
 
-const options = [
-  { label: 'Ukraine', value: 'ua' },
-  { label: 'USA', value: 'us' },
-  { label: 'United Kingdom', value: 'uk' },
-  { label: 'Germany', value: 'de' },
-];
+import { DataGridProvider } from '@/providers/DataGridProvider';
+import { useState } from 'react';
 
 const Appointments = () => {
   const [selected, setSelected] = useState<{
@@ -16,9 +10,9 @@ const Appointments = () => {
   } | null>(null);
 
   return (
-    <div className="mx-auto max-w-md p-6">
-      <TreatmentsAutocomplete />
-    </div>
+    <DataGridProvider>
+      <AppointmentsTable />
+    </DataGridProvider>
   );
 };
 
